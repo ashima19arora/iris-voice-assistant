@@ -1,0 +1,9 @@
+{
+  "name": "iris-voice-assistant",
+  "private": true,
+  "description": "Voice assistant — start with npm run dev",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "start": "node scripts/dev.js"
+  }
+}
