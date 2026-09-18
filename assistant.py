@@ -8,10 +8,8 @@ WHAT THIS FILE DOES (Simple English):
   forms, control windows, search websites, or answer questions).
   It also features an automatic 45-second sleep mode to save CPU when you are not speaking.
 
-NOTE (repo status): this file imports the `actions` package for intent parsing and
-execution, which has NOT been added to this repo yet -- it will be added in a later
-stage. Running this file right now will raise an ImportError at startup. Use listen.py
-in the meantime to test the speech-to-text layer on its own.
+Startup does not run any command. It only loads the speech model, opens the
+microphone, and waits for you to speak.
 
 GREAT TECH & PACKAGES USED IN THIS FILE:
   - onnx_asr (NVIDIA NeMo Parakeet TDT 0.6B int8):
@@ -31,7 +29,11 @@ GREAT TECH & PACKAGES USED IN THIS FILE:
 """
 
 import io
+import os
 import sys
+
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
+
 import numpy as np
 import soundfile as sf
 import speech_recognition as sr
@@ -49,6 +51,20 @@ except Exception:
 import time
 import re
 from actions.languages import detect_language
+
+# Leftover demo/ASR junk that must never run as a command on its own
+_ASR_JUNK_CLAUSE = re.compile(
+    r'\b(?:youtube\s+kolo|youtube\s+kholo|sachkaro|search\s+karo|ranger\s+station|'
+    r'ram\s+check\s+karo|yup)\b[,\s]*',
+    re.IGNORECASE,
+)
+
+
+def _clean_transcript(text: str) -> str:
+    """Drop hallucinated demo phrases; keep the user's real words."""
+    cleaned = _ASR_JUNK_CLAUSE.sub(' ', text)
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip(' ,.-')
+    return cleaned
 
 def run_assistant():
     print("=" * 60)
@@ -68,23 +84,6 @@ def run_assistant():
     recognizer.non_speaking_duration = 0.5
     recognizer.phrase_threshold = 0.3
 
-    actions.speak("Iris is online and ready for voice commands.")
-    # Ensure startup speech finishes playing completely before opening microphone and calibrating
-    actions.wait_until_speech_finishes()
-
-    print("\n[Iris Ready] Try commands like:")
-    print("  - 'create a txt file on desktop named Notes' / 'make a note called Tasks'")
-    print("  - 'what is photosynthesis' / 'who is Albert Einstein' (Instant Knowledge Q&A)")
-    print("  - 'scroll down' / 'scroll up' / 'zoom in' / 'find on page physics'")
-    print("  - 'press tab' / 'next field' / 'fill field with Mayank' / 'submit form'")
-    print("  - 'type I am running late and send' (Messaging automation)")
-    print("  - 'snap window left' / 'snap right' / 'task view' / 'next desktop'")
-    print("  - 'search for SpaceX' / 'open YouTube' / 'open WhatsApp web'")
-    print("  - 'how much RAM is occupied' / 'check battery'")
-    print("  - 'volume up' / 'volume down' / 'mute' / 'take screenshot'")
-    print("  - Wake with 'hey iris' / 'hi iris' / 'hello iris' / 'wake up' (after 45s of silence, it sleeps)")
-    print("  - 'exit', 'goodbye', or 'bye' to fully stop the assistant\n")
-
     INACTIVITY_SLEEP_TIMEOUT = 45.0  # seconds of silence before entering sleep mode
     is_sleeping = False
     last_active_time = time.time()
@@ -98,34 +97,40 @@ def run_assistant():
             recognizer.dynamic_energy_threshold = False
             recognizer.energy_threshold = max(recognizer.energy_threshold, 300)
             print(f"Calibrated energy threshold: {recognizer.energy_threshold:.1f}")
-            print("Listening continuously. Speak anytime!\n")
+
+            try:
+                actions.speak("Iris is active and ready for command.", lang='en', asynchronous=False)
+                actions.wait_until_speech_finishes(timeout=12.0)
+            except Exception as speak_error:
+                print(f"[Iris] Voice announcement skipped: {speak_error}")
+
+            print("[Iris Ready] Listening. Speak a command when you want.\n")
+            last_active_time = time.time()
 
             while True:
                 try:
                     # Prevent acoustic loopback: never listen while assistant is still speaking
-                    actions.wait_until_speech_finishes()
+                    actions.wait_until_speech_finishes(timeout=12.0)
 
                     # Check for inactivity and enter sleep mode if silent for 45s
                     if not is_sleeping and (time.time() - last_active_time > INACTIVITY_SLEEP_TIMEOUT):
                         is_sleeping = True
                         print("\n\033[94m[Iris State] Inactivity detected. Entering Sleep Mode...\033[0m")
                         sleep_msg = "Going to sleep mode. Say 'hey iris', 'hi iris', 'hello iris', or 'wake up' to wake me up."
-                        actions.speak(sleep_msg, lang='en')
-                        actions.wait_until_speech_finishes()
+                        try:
+                            actions.speak(sleep_msg, lang='en', asynchronous=False)
+                            actions.wait_until_speech_finishes(timeout=12.0)
+                        except Exception as speak_error:
+                            print(f"[Iris] Sleep announcement skipped: {speak_error}")
                         print("\033[94m[Iris Asleep - Listening for wake word: 'hey iris' / 'hi iris' / 'hello iris' / 'wake up']\033[0m\n")
 
                     status_prompt = "\033[94m[Iris Asleep (Say 'hey iris' / 'hi iris' / 'hello iris' / 'wake up')...]\033[0m" if is_sleeping else "\033[90m[Listening...]\033[0m"
                     print(status_prompt, end="\r", flush=True)
 
-                    # Listen with 5s timeout to periodically refresh sleep-timer
-                    # phrase_time_limit=150 (2.5 min): generous ceiling for
-                    # users who need extended time to fully explain a
-                    # multi-step request (per research brief). Tradeoff: if
-                    # someone genuinely goes silent mid-recording without
-                    # triggering pause_threshold (e.g. long thinking pause
-                    # under 2s repeated), the mic could stay open a while
-                    # before this ceiling kicks in. Worth real-user testing.
-                    audio = recognizer.listen(source, timeout=5.0, phrase_time_limit=150)
+                    # Listen with 5s timeout to periodically refresh sleep-timer.
+                    # phrase_time_limit keeps recordings short so noise is not
+                    # mixed with the next command.
+                    audio = recognizer.listen(source, timeout=5.0, phrase_time_limit=20)
                     print("                                                         \r", end="")
 
                     # Audio conversion to float32 numpy array
@@ -135,6 +140,7 @@ def run_assistant():
 
                     # Speech Recognition via Parakeet
                     text = model.recognize(audio_np, sample_rate=sample_rate).strip()
+                    text = _clean_transcript(text)
 
                     if not text:
                         continue
@@ -194,8 +200,8 @@ def run_assistant():
                                 print(f"\033[92m[Iris Direct Execution]\033[0m Running '{text}' immediately...")
                             else:
                                 wake_response = "Hey, I am awake and ready for your commands!"
-                                actions.speak(wake_response, lang='en')
-                                actions.wait_until_speech_finishes()
+                                actions.speak(wake_response, lang='en', asynchronous=False)
+                                actions.wait_until_speech_finishes(timeout=12.0)
                                 continue
                         else:
                             # While sleeping, ignore ambient background chatter
@@ -214,17 +220,8 @@ def run_assistant():
                         print("\n[Iris Assistant] Session ended by user request.")
                         break
 
-                    # Wait for action's feedback audio to complete before giving the turn-taking cue
-                    actions.wait_until_speech_finishes()
-
-                    # Clear Turn-Taking Readiness Cue
-                    # Forced to English -- current_lang/Hindi detection is
-                    # unreliable (known bug, not fixed here), was causing
-                    # random Hindi responses to English input.
-                    ready_cue = "Hey, I am ready for the next query."
-                    actions.speak(ready_cue, lang='en')
-                    print(f"\033[92m[Iris Turn-Taking]\033[0m {ready_cue}")
-                    actions.wait_until_speech_finishes()
+                    actions.wait_until_speech_finishes(timeout=12.0)
+                    print("\033[92m[Iris]\033[0m Listening for the next command.")
                     print("-" * 50)
 
                 except sr.WaitTimeoutError:
@@ -255,7 +252,10 @@ def run_assistant():
 
     except KeyboardInterrupt:
         print("\n\n[Iris Assistant] Stopped by user (Ctrl+C). Goodbye!")
-        actions.speak("Goodbye!")
+        try:
+            actions.speak("Goodbye!", lang='en', asynchronous=False)
+        except Exception:
+            pass
     except Exception as e:
         print(f"\n[Microphone Error] Could not initialize audio input: {e}")
 

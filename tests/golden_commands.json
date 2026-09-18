@@ -1,0 +1,13 @@
+[
+  {"utterance": "tell me how much ram used", "intent": "SYSTEM_RAM"},
+  {"utterance": "how much RAM is used", "intent": "SYSTEM_RAM"},
+  {"utterance": "open setting for me please", "intent": "OPEN_APP"},
+  {"utterance": "open settings", "intent": "OPEN_APP"},
+  {"utterance": "create a .txt file on desktop please", "intent": "CREATE_FILE"},
+  {"utterance": "create a txt file on desktop", "intent": "CREATE_FILE"},
+  {"utterance": "open gov.in website on browser please", "intent": "OPEN_WEBSITE"},
+  {"utterance": "open gov.in", "intent": "OPEN_WEBSITE"},
+  {"utterance": "click the second result", "intent": "CLICK_ELEMENT"},
+  {"utterance": "click result 2", "intent": "CLICK_ELEMENT"},
+  {"utterance": "click result number two", "intent": "CLICK_ELEMENT"}
+]
