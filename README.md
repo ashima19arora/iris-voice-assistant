@@ -2,7 +2,7 @@
 
 **Digital braille for the internet — say it, and it happens.**
 
-Iris is a voice-first assistant built for people the digital world leaves out — blind and low-vision users, and the far larger population of low-literacy, rural, and elderly users who can speak a request fluently but cannot reliably read the screen meant to let them make it. It sits at the OS level and lets a person ask for something and have it happen, the way they always could before every essential service moved behind a mouse and a set of eyes.
+Iris is a voice-first assistant built for people the digital world leaves out — blind and low-vision users, and the much larger group of low-literacy, rural, and elderly users. It sits at the OS level and lets a person ask for something and have it happen, the way they always could before every essential service moved behind a mouse and a set of eyes.
 
 This README reflects the project as it currently stands: foundation layer complete, higher layers under active construction. Status is called out explicitly throughout, not overclaimed.
 
