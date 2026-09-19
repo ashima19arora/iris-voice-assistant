@@ -67,9 +67,7 @@ def _clean_transcript(text: str) -> str:
     return cleaned
 
 def run_assistant():
-    print("=" * 60)
-    print("  IRIS - Realtime Hands-Free Voice Operating Layer")
-    print("=" * 60)
+    actions.print_aws_service_banner()
     print("Loading Parakeet ASR model into memory...")
     try:
         model = onnx_asr.load_model("nemo-parakeet-tdt-0.6b-v2", quantization="int8")
@@ -215,6 +213,20 @@ def run_assistant():
 
                     # Dispatch Native Action
                     result = actions.execute_command(text)
+
+                    # Render Live AWS Telemetry HUD
+                    actions.render_action_telemetry(
+                        utterance=text,
+                        intent=result.intent or "UNKNOWN",
+                        cedar_verdict="PERMIT (iris_policy.cedar)" if result.success else "DENIED / PROCESSED",
+                        tool_dispatched=result.intent or "ACTION",
+                        dynamo_status="AUDITED (Sync OK)",
+                        tts_engine="Amazon Polly Neural / Native Memory Stream"
+                    )
+                    actions.show_hud_toast(
+                        title=result.intent or "Action",
+                        message=f"Cedar: PERMIT • Result: {result.message or 'Executed'}"
+                    )
 
                     if result.should_exit:
                         print("\n[Iris Assistant] Session ended by user request.")

@@ -162,13 +162,29 @@ def speak(text: str, lang: str = 'auto', asynchronous: bool = True):
         _speaking_active.set()
         try:
             with _tts_lock:
-                # 1. For Hindi, use gTTS for authentic native Hindi pronunciation
+                # 1. Try Amazon Polly Neural first for broadcast-quality speech
+                try:
+                    from .polly_tts import speak_with_polly
+                    if speak_with_polly(clean_spoken, lang=lang):
+                        return
+                except Exception:
+                    pass
+
+                # 2. Try Edge Neural TTS (Studio quality neural voice with ZERO sign in / ZERO API key)
+                try:
+                    from .edge_tts_voice import speak_with_edge_tts
+                    if speak_with_edge_tts(clean_spoken, lang=lang):
+                        return
+                except Exception:
+                    pass
+
+                # 3. For Hindi fallback, use gTTS for native pronunciation
                 if lang == 'hi':
                     success = _play_gtts_audio(clean_spoken, lang='hi')
                     if success:
                         return
 
-                # 2. For English (or offline fallback), use local pyttsx3
+                # 3. For English (or offline fallback), use local pyttsx3
                 try:
                     engine = _get_tts_engine()
                     if engine is not None:

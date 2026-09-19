@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Iris Voice Assistant — AWS Serverless & Security Audit Infrastructure
+  Compatible with LocalStack (offline localhost:4566) and AWS Cloud.
+
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 128
+    Runtime: python3.12
+    Environment:
+      Variables:
+        DYNAMODB_TABLE_NAME: !Ref IrisSecurityAuditTable
+
+Resources:
+  # ----------------------------------------------------------------------------
+  # Amazon DynamoDB Audit Ledger (LocalStack & AWS Cloud)
+  # ----------------------------------------------------------------------------
+  IrisSecurityAuditTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: IrisSecurityAudit
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: session_id
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: session_id
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      Tags:
+        - Key: Project
+          Value: IrisVoiceAssistant
+        - Key: Accessibility
+          Value: DigitalBraille
+
+Outputs:
+  AuditTableName:
+    Description: "Name of the DynamoDB security audit table"
+    Value: !Ref IrisSecurityAuditTable
+    Export:
+      Name: IrisSecurityAuditTableName
