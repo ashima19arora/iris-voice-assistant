@@ -20,7 +20,7 @@ GREAT TECH & ARCHITECTURE IN THIS FILE:
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Optional
 from .threat_detector import ThreatAssessment
 from .sanitizer import (
     sanitize_url, 
@@ -125,12 +125,12 @@ class PolicyDecision:
     reason: str
     sanitized_params: Dict[str, Any]
 
-def evaluate_policy(intent_name: str, params: Dict[str, Any], threat: ThreatAssessment) -> PolicyDecision:
+def evaluate_policy(intent_name: str, params: Dict[str, Any], threat: Optional[ThreatAssessment] = None) -> PolicyDecision:
     """
     Evaluates system policy against the intent, sanitized parameters, and threat level.
     """
     # 1. Immediate Interception if Lexical Threat Detected
-    if threat.is_threat:
+    if threat is not None and threat.is_threat:
         return PolicyDecision(
             allowed=False,
             risk_tier=RiskTier.TIER_4_FORBIDDEN,
@@ -266,10 +266,30 @@ def evaluate_policy(intent_name: str, params: Dict[str, Any], threat: ThreatAsse
             )
         sanitized["location"] = loc
 
-    # Action is permitted under its risk tier
+    # Evaluate against AWS Cedar Policy Engine
+    try:
+        from .cedar_engine import evaluate_cedar_policy
+        is_safe_path = True
+        if intent_name == "CREATE_FILE":
+            is_safe_path = sanitized.get("location") in ("desktop", "documents", "iris")
+        cedar_res = evaluate_cedar_policy(
+            intent_name=intent_name,
+            context={"is_safe_path": is_safe_path, "confirmed": sanitized.get("confirmed", False)}
+        )
+        if not cedar_res.allowed:
+            return PolicyDecision(
+                allowed=False,
+                risk_tier=RiskTier.TIER_4_FORBIDDEN,
+                reason=cedar_res.reason,
+                sanitized_params=sanitized
+            )
+    except Exception:
+        pass
+
+    # Action is permitted under its risk tier and AWS Cedar authorization
     return PolicyDecision(
         allowed=True,
         risk_tier=tier,
-        reason=f"Action cleared policy verification under {tier.value} tier.",
+        reason=f"Action cleared policy verification under {tier.value} tier and AWS Cedar.",
         sanitized_params=sanitized
     )

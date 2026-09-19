@@ -25,6 +25,7 @@ from . import form_actions
 from . import knowledge_actions
 from . import file_actions
 from . import screen_actions
+from .iris_hud import print_aws_service_banner, render_action_telemetry, show_hud_toast
 
 __all__ = [
     "execute_command",
@@ -42,4 +43,7 @@ __all__ = [
     "knowledge_actions",
     "file_actions",
     "screen_actions",
+    "print_aws_service_banner",
+    "render_action_telemetry",
+    "show_hud_toast",
 ]

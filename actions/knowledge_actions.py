@@ -111,20 +111,30 @@ def answer_knowledge_query(query: str, lang: str = 'en', speak_answer: bool = Tr
     notify(f"Looking up answer for: '{clean_query}'")
 
     summary = ""
-    # 1. Try high-performance OpenRouter LLM engine first (instant multi-key answers)
+    # 1. Try Amazon Bedrock first (Claude 3.5 / Nova on AWS)
     try:
-        from .llm_client import ask_iris_llm
-        llm_answer = ask_iris_llm(clean_query, lang=lang)
-        if llm_answer:
-            summary = llm_answer
+        from .bedrock_client import query_bedrock
+        bedrock_ans, _ = query_bedrock(clean_query)
+        if bedrock_ans:
+            summary = bedrock_ans
     except Exception:
         pass
 
-    # 2. Try Wikipedia if LLM was unavailable
+    # 2. Try OpenRouter LLM engine if Bedrock was unavailable
+    if not summary:
+        try:
+            from .llm_client import ask_iris_llm
+            llm_answer = ask_iris_llm(clean_query, lang=lang)
+            if llm_answer:
+                summary = llm_answer
+        except Exception:
+            pass
+
+    # 3. Try Wikipedia if LLM was unavailable
     if not summary:
         summary = fetch_wikipedia_summary(clean_query)
 
-    # 3. Try DuckDuckGo Instant Answer
+    # 4. Try DuckDuckGo Instant Answer
     if not summary:
         summary = fetch_duckduckgo_answer(clean_query)
 

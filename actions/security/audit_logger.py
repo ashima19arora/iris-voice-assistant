@@ -73,6 +73,13 @@ def log_security_event(
         if len(RECENT_AUDIT_EVENTS) > MAX_AUDIT_EVENTS:
             RECENT_AUDIT_EVENTS.pop(0)
 
+        # Dual-write asynchronously to Amazon DynamoDB (or LocalStack)
+        try:
+            from .dynamo_logger import put_audit_event_async
+            put_audit_event_async(event)
+        except Exception:
+            pass
+
         # Log via standard logging
         logger = _get_logger()
         line = json.dumps(event, ensure_ascii=False)

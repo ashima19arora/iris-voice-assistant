@@ -242,6 +242,19 @@ def describe_screen(lang: str = "en", speak_aloud: bool = True) -> str:
     else:
         spoken = "Your desktop is currently open." if lang != "hi" else "आपका डेस्कटॉप खुला हुआ है।"
 
+    # Append key screen content (search results or main highlights) for accessibility
+    search_results = analysis.get("search_results", [])
+    highlights = analysis.get("highlights", [])
+    if search_results:
+        clean_results = [r for r in search_results[:3] if len(r) > 3]
+        if clean_results:
+            formatted_res = ", ".join([f"{i+1}. {r}" for i, r in enumerate(clean_results)])
+            spoken = f"{spoken} Results: {formatted_res}."
+    elif highlights and not any(k in app_name.lower() for k in ("terminal", "cmd", "powershell")):
+        clean_hl = [h for h in highlights[:2] if len(h) > 10 and h not in spoken]
+        if clean_hl:
+            spoken = f"{spoken} Content: {'. '.join(clean_hl)}."
+
     logger.info("Screen description: %s", spoken)
     if speak_aloud:
         speak(spoken, lang=lang)
