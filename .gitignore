@@ -219,3 +219,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+#skills
+iris-website/.agents/
+iris-website/claude-skill-awwwards/

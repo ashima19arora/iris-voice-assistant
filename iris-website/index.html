@@ -6,10 +6,13 @@
   <title>Iris — The Internet's Braille</title>
   <meta name="description" content="Iris is a voice-first assistant built for people the digital world leaves out: blind and low-vision users, low-literacy, rural, and elderly users.">
   
+  <!-- Favicon using Icon-Only Logo -->
+  <link rel="icon" type="image/png" href="favicon.png">
+
   <!-- Fonts: JetBrains Mono for terminal aesthetic & Inter for clean text -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
 
   <style>
     /* CSS RESET & VARIABLES */
@@ -26,13 +29,18 @@
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
+      
+      /* ACCENT COLOR: SOFT SKY-BLUE (#60a5f8) FROM SWATCH */
+      --accent-blue: #60a5f8;
+      --accent-blue-glow: rgba(96, 165, 248, 0.25);
       --accent-emerald: #10b981;
-      --accent-cyan: #06b6d4;
-      --accent-indigo: #6366f1;
-      --accent-amber: #f59e0b;
-      --border-glow: rgba(6, 182, 212, 0.25);
+      --accent-indigo: #818cf8;
+      --accent-amber: #fbbf24;
+      --accent-rose: #f43f5e;
+      
       --font-mono: 'JetBrains Mono', monospace;
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-serif: 'Playfair Display', Georgia, serif;
     }
 
     html {
@@ -51,7 +59,7 @@
       position: relative;
     }
 
-    /* FAINT SUBLIMINAL INDIA LINE-ART BACKGROUND */
+    /* FAINT SUBLIMINAL INDIA LINE-ART BACKGROUND SKETCHES */
     .bg-sketches {
       position: fixed;
       top: 0;
@@ -66,7 +74,7 @@
 
     .sketch-item {
       position: absolute;
-      stroke: var(--accent-cyan);
+      stroke: var(--accent-blue);
       fill: none;
       stroke-width: 1.2;
       vector-effect: non-scaling-stroke;
@@ -88,14 +96,14 @@
       z-index: 1;
     }
 
-    /* HEADER & NAV WITH ACTIVE TAB UNDERLINE */
+    /* HEADER & NAV WITH CURSOR-FOLLOWING SLIDING UNDERLINE */
     header {
       position: sticky;
       top: 0;
       z-index: 100;
       backdrop-filter: blur(12px);
-      background: rgba(7, 9, 14, 0.85);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(7, 9, 14, 0.88);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       padding: 0.85rem 0;
     }
 
@@ -108,28 +116,16 @@
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 0.85rem;
+      gap: 0.75rem;
       text-decoration: none;
-      color: var(--text-main);
     }
 
+    /* Nav Logo using Icon + Wordmark Together */
     .brand-logo-img {
       height: 38px;
       width: auto;
-      border-radius: 6px;
       object-fit: contain;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 2px 4px;
-      box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
-    }
-
-    .brand-name {
-      font-family: var(--font-mono);
-      font-weight: 700;
-      font-size: 1.3rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-main);
+      filter: drop-shadow(0 0 8px var(--accent-blue-glow));
     }
 
     nav {
@@ -150,26 +146,20 @@
       cursor: pointer;
     }
 
-    .nav-item:hover {
-      color: var(--text-main);
+    .nav-item:hover, .nav-item.active {
+      color: var(--accent-blue);
     }
 
-    /* ACTIVE TAB UNDERLINE BEHAVIOR */
-    .nav-item.active {
-      color: var(--accent-cyan);
-    }
-
-    .nav-item.active::after {
-      content: '';
+    /* Sliding Underline Bar */
+    #nav-indicator {
       position: absolute;
       bottom: -4px;
-      left: 0;
-      width: 100%;
       height: 2px;
-      background: var(--accent-cyan);
-      box-shadow: 0 0 8px var(--accent-cyan);
+      background: var(--accent-blue);
+      box-shadow: 0 0 10px var(--accent-blue);
       border-radius: 2px;
-      transition: all 0.25s ease;
+      transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1), width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      pointer-events: none;
     }
 
     .github-nav-link {
@@ -177,23 +167,24 @@
       align-items: center;
       gap: 0.4rem;
       border: 1px solid var(--bg-card-border);
-      padding: 0.35rem 0.8rem;
+      padding: 0.35rem 0.85rem;
       border-radius: 4px;
       background: rgba(255, 255, 255, 0.03);
       font-family: var(--font-mono);
       font-size: 0.88rem;
       color: var(--text-main);
       text-decoration: none;
-      transition: all 0.2s ease;
+      transition: all 0.25s ease;
     }
 
     .github-nav-link:hover {
-      border-color: var(--accent-cyan);
-      background: rgba(6, 182, 212, 0.08);
-      color: var(--accent-cyan);
+      border-color: var(--accent-blue);
+      background: rgba(96, 165, 248, 0.1);
+      color: var(--accent-blue);
+      box-shadow: 0 0 12px var(--accent-blue-glow);
     }
 
-    /* PAGE VIEWS MANAGEMENT (SINGLE PAGE APP SWITCHING) */
+    /* SINGLE PAGE APP VIEWS */
     .view-content {
       display: none;
       flex: 1;
@@ -206,53 +197,11 @@
 
     /* HERO SECTION */
     .hero-wrapper {
-      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 3rem 0 2rem 0;
-    }
-
-    /* NEON WAVEFORM VISUALIZER (LEFT SIDE HERO ANCHOR) */
-    .hero-waveform-container {
-      position: absolute;
-      left: -20px;
-      top: 15%;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      height: 60px;
-      opacity: 0.75;
-    }
-
-    .wave-bar {
-      width: 3px;
-      background: linear-gradient(180deg, var(--accent-cyan), var(--accent-emerald));
-      border-radius: 3px;
-      box-shadow: 0 0 8px var(--accent-cyan);
-      animation: pulseWaveform 1.4s ease-in-out infinite alternate;
-    }
-
-    .wave-bar:nth-child(1) { height: 15px; animation-delay: 0.1s; }
-    .wave-bar:nth-child(2) { height: 35px; animation-delay: 0.3s; }
-    .wave-bar:nth-child(3) { height: 50px; animation-delay: 0.5s; }
-    .wave-bar:nth-child(4) { height: 25px; animation-delay: 0.2s; }
-    .wave-bar:nth-child(5) { height: 40px; animation-delay: 0.4s; }
-
-    @keyframes pulseWaveform {
-      0% { transform: scaleY(0.4); opacity: 0.5; }
-      100% { transform: scaleY(1.2); opacity: 1; }
-    }
-
-    /* HERO TITLE & MEDALLION BADGE WRAPPER */
-    .hero-title-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1.5rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
+      padding: 4rem 0 2rem 0;
     }
 
     .hero-title {
@@ -261,6 +210,7 @@
       font-weight: 700;
       letter-spacing: -0.02em;
       color: var(--text-main);
+      margin-bottom: 1.5rem;
       display: inline-flex;
       align-items: center;
     }
@@ -269,7 +219,7 @@
       display: inline-block;
       width: 0.55em;
       height: 1.1em;
-      background-color: var(--accent-cyan);
+      background-color: var(--accent-blue);
       margin-left: 6px;
       vertical-align: middle;
       animation: blinkCursor 0.9s infinite;
@@ -280,45 +230,18 @@
       50% { opacity: 0; }
     }
 
-    /* LAUREL WREATH MEDALLION BADGE WITH RIBBONS */
-    .hero-medallion-badge {
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      cursor: default;
-      transition: transform 0.3s ease;
-    }
-
-    .hero-medallion-badge:hover {
-      transform: translateY(-3px) scale(1.03);
-    }
-
-    .medallion-svg {
-      width: 68px;
-      height: 85px;
-      filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.35));
-    }
-
-    .medallion-text {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      color: var(--accent-cyan);
-      margin-top: 0.2rem;
-      letter-spacing: 0.05em;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
     .hero-subtitle {
       font-family: var(--font-mono);
-      font-size: 1.3rem;
-      color: var(--accent-cyan);
+      font-size: 1.35rem;
+      color: var(--accent-blue);
       margin-bottom: 1.25rem;
-      max-width: 750px;
+      max-width: 780px;
       opacity: 0;
       transform: translateY(10px);
       transition: opacity 0.8s ease, transform 0.8s ease;
+      border-bottom: 2px solid rgba(96, 165, 248, 0.35);
+      padding-bottom: 0.4rem;
+      display: inline-block;
     }
 
     .hero-desc {
@@ -326,7 +249,7 @@
       color: var(--text-muted);
       max-width: 680px;
       margin-bottom: 2.25rem;
-      line-height: 1.7;
+      line-height: 1.75;
       opacity: 0;
       transform: translateY(10px);
       transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;
@@ -361,12 +284,12 @@
       cursor: pointer;
     }
 
-    .btn-bracket::before { content: "[ "; color: var(--accent-cyan); }
-    .btn-bracket::after { content: " ]"; color: var(--accent-cyan); }
+    .btn-bracket::before { content: "[ "; color: var(--accent-blue); }
+    .btn-bracket::after { content: " ]"; color: var(--accent-blue); }
 
     .btn-bracket:hover {
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 15px var(--accent-blue-glow);
       transform: translateY(-2px);
       color: #ffffff;
     }
@@ -375,7 +298,7 @@
     .btn-primary::after { color: var(--accent-emerald); }
     .btn-primary:hover {
       border-color: var(--accent-emerald);
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
     }
 
     /* TERMINAL WINDOW (iris.exe) */
@@ -386,7 +309,7 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(6, 182, 212, 0.08);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px var(--accent-blue-glow);
       margin-bottom: 3.5rem;
       text-align: left;
     }
@@ -442,78 +365,395 @@
       transform: translateX(0);
     }
 
-    .term-prompt { color: var(--accent-cyan); }
+    .term-prompt { color: var(--accent-blue); }
     .term-cmd { color: var(--accent-emerald); }
     .term-output { color: var(--text-muted); }
 
-    /* FLOATING FEATURE PILLS */
-    .features-floating-wrapper {
-      position: relative;
-      width: 100%;
-      padding: 1.5rem 0;
+    /* FLOATING FEATURE PILLS (DRIFTING ANIMATION RESTORED, HIGH ENERGY) */
+    .features-pills-grid {
       display: flex;
       justify-content: center;
-      gap: 1.25rem;
+      gap: 1rem;
       flex-wrap: wrap;
+      max-width: 960px;
+      margin: 1rem auto 3rem auto;
     }
 
-    .floating-pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.45rem 1.1rem;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid var(--accent-indigo);
+    .feature-pill {
+      padding: 0.6rem 1.3rem;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--accent-blue);
       border-radius: 50px;
       font-family: var(--font-mono);
-      font-size: 0.82rem;
-      color: #c7d2fe;
+      font-size: 0.85rem;
+      color: var(--text-main);
       backdrop-filter: blur(8px);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      animation: floatBobbing 6s ease-in-out infinite;
+      cursor: default;
+      animation: floatDrift 6s ease-in-out infinite alternate, popInPill 0.5s ease backward;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .floating-pill::before { content: "⟨ "; color: var(--accent-indigo); }
-    .floating-pill::after { content: " ⟩"; color: var(--accent-indigo); }
+    .feature-pill:nth-child(1) { border-color: var(--accent-blue); color: #93c5fd; animation-delay: 0s, 0.1s; }
+    .feature-pill:nth-child(2) { border-color: var(--accent-emerald); color: #a7f3d0; animation-delay: 1.2s, 0.2s; }
+    .feature-pill:nth-child(3) { border-color: var(--accent-indigo); color: #c7d2fe; animation-delay: 2.4s, 0.3s; }
+    .feature-pill:nth-child(4) { border-color: var(--accent-amber); color: #fde68a; animation-delay: 3.6s, 0.4s; }
+    .feature-pill:nth-child(5) { border-color: var(--accent-rose); color: #fecdd3; animation-delay: 4.8s, 0.5s; }
+    .feature-pill:nth-child(6) { border-color: var(--accent-blue); color: #bfdbfe; animation-delay: 1.5s, 0.6s; }
+    .feature-pill:nth-child(7) { border-color: var(--accent-emerald); color: #6ee7b7; animation-delay: 2.7s, 0.7s; }
+    .feature-pill:nth-child(8) { border-color: var(--accent-indigo); color: #a5b4fc; animation-delay: 3.9s, 0.8s; }
 
-    .floating-pill:nth-child(1) { animation-delay: 0s; transform: rotate(-1.5deg); }
-    .floating-pill:nth-child(2) { animation-delay: 1.5s; border-color: var(--accent-cyan); color: #a5f3fc; transform: rotate(1deg); }
-    .floating-pill:nth-child(2)::before, .floating-pill:nth-child(2)::after { color: var(--accent-cyan); }
-    .floating-pill:nth-child(3) { animation-delay: 3s; border-color: var(--accent-emerald); color: #a7f3d0; transform: rotate(-2deg); }
-    .floating-pill:nth-child(3)::before, .floating-pill:nth-child(3)::after { color: var(--accent-emerald); }
-    .floating-pill:nth-child(4) { animation-delay: 4.5s; transform: rotate(2deg); }
-
-    @keyframes floatBobbing {
-      0%, 100% { transform: translateY(0px) rotate(-1deg); }
-      50% { transform: translateY(-8px) rotate(1deg); }
+    @keyframes floatDrift {
+      0% { transform: translateY(0px) rotate(-1deg); }
+      100% { transform: translateY(-8px) rotate(1deg); }
     }
 
-    /* EMPTY / UNBUILT PAGE VIEW CONTAINERS */
-    .empty-view-container {
-      min-height: 40vh;
+    @keyframes popInPill {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .feature-pill:hover {
+      transform: translateY(-5px) scale(1.06) !important;
+      box-shadow: 0 10px 25px var(--accent-blue-glow);
+      background: rgba(30, 41, 59, 0.95);
+      color: #ffffff;
+    }
+
+    /* ORIGINS PAGE STYLING */
+    .origins-wrapper {
+      max-width: 820px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .origins-main-title {
+      font-family: var(--font-mono);
+      font-size: 2.3rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 2.5rem;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .origins-section {
+      padding: 3rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .origins-section:last-child {
+      border-bottom: none;
+    }
+
+    /* Noticeably larger headings with typewriter cursor effect */
+    .origins-heading {
+      font-family: var(--font-mono);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-bottom: 1.5rem;
+      display: inline-block;
+      position: relative;
+    }
+
+    /* Reveal-on-scroll for body text */
+    .reveal-text {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal-text.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .origins-body p {
+      font-size: 1.08rem;
+      color: var(--text-muted);
+      line-height: 1.85;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ORIGINS STATS CARDS */
+    .origins-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .origins-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 8px;
+      padding: 1.75rem;
+    }
+
+    .origins-stat-num {
+      font-family: var(--font-mono);
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-bottom: 0.4rem;
+    }
+
+    .origins-stat-label {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    .legal-context-box {
+      background: rgba(15, 23, 42, 0.5);
+      border-left: 3px solid var(--accent-blue);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0 6px 6px 0;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .accent-link {
+      color: var(--accent-blue);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .accent-link:hover { color: #ffffff; }
+
+    /* DEMO PLACEHOLDER WIDGET */
+    .origins-demo-widget {
+      background: var(--bg-card);
+      border: 1px dashed var(--accent-blue);
+      border-radius: 8px;
+      padding: 2.5rem;
+      text-align: center;
+      margin: 2rem 0;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .origins-demo-widget:hover {
+      background: rgba(15, 23, 42, 0.85);
+      box-shadow: 0 0 20px var(--accent-blue-glow);
+    }
+
+    /* WHY IRIS CHECKLIST (NO BOXES) */
+    .checklist-plain {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
     }
 
-    /* DEMO PLACEHOLDER VIEW */
-    .demo-card {
-      background: var(--bg-card);
-      border: 1px dashed rgba(6, 182, 212, 0.4);
-      border-radius: 8px;
-      padding: 3.5rem 2rem;
-      text-align: center;
-      max-width: 650px;
+    .check-line {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+
+    .check-mark {
+      color: var(--accent-emerald);
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    /* PART 3: THE STACK SCRAPBOOK / STORYBOOK STYLING */
+    .book-wrapper {
+      perspective: 1200px;
+      max-width: 720px;
       margin: 2rem auto;
     }
 
-    .demo-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      color: var(--accent-cyan);
+    .book-container {
+      width: 100%;
+      min-height: 440px;
+      background: #111827;
+      border: 2px solid #374151;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
     }
 
-    /* FOOTER CLEANUP (THREE ALIGNED COLUMNS ON SAME ROW) */
+    .book-page {
+      display: none;
+      animation: pageTurn 0.5s ease-out forwards;
+    }
+
+    .book-page.active {
+      display: block;
+    }
+
+    @keyframes pageTurn {
+      0% { opacity: 0; transform: rotateY(-15deg) scale(0.96); }
+      100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+    }
+
+    .book-cover-title {
+      font-family: var(--font-serif);
+      font-size: 3.2rem;
+      letter-spacing: 0.15em;
+      color: #f3f4f6;
+      text-align: center;
+      margin-top: 3rem;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    }
+
+    .book-cover-emblem {
+      width: 80px;
+      height: 80px;
+      margin: 1.5rem auto;
+      border: 2px stroke var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--accent-blue);
+    }
+
+    .book-page-num {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-align: right;
+    }
+
+    .book-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+    }
+
+    /* PART 4: BUILD LOG CHAT TIMELINE & BRAILLE DOT visualizer */
+    .buildlog-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* Floating Braille Dot Cell Progress Indicator */
+    .braille-scroll-tracker {
+      position: fixed;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--accent-blue);
+      border-radius: 8px;
+      padding: 0.85rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      z-index: 90;
+      box-shadow: 0 0 15px var(--accent-blue-glow);
+    }
+
+    .b-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .b-dot.active {
+      background: var(--accent-blue);
+      box-shadow: 0 0 8px var(--accent-blue);
+    }
+
+    /* Entry 0 System Message */
+    .system-entry-card {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--accent-blue);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(96, 165, 248, 0.15);
+    }
+
+    .system-entry-title {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      color: var(--accent-blue);
+      margin-bottom: 1rem;
+    }
+
+    /* Chat Bubbles (WhatsApp / iMessage Style) */
+    .chat-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .chat-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      max-width: 85%;
+    }
+
+    .chat-row.left { align-self: flex-start; }
+    .chat-row.right { align-self: flex-end; flex-direction: row-reverse; }
+
+    .chat-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .avatar-ashima { background: linear-gradient(135deg, #10b981, #06b6d4); }
+    .avatar-mayank { background: linear-gradient(135deg, #6366f1, #818cf8); }
+
+    .chat-bubble {
+      padding: 1rem 1.25rem;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    .chat-row.left .chat-bubble {
+      background: #1e293b;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #f1f5f9;
+      border-top-left-radius: 2px;
+    }
+
+    .chat-row.right .chat-bubble {
+      background: #1e1b4b;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #f1f5f9;
+      border-top-right-radius: 2px;
+    }
+
+    .chat-sender {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-bottom: 0.25rem;
+    }
+
+    /* FOOTER (CLEAN 3-COLUMN ALIGNMENT) */
     footer {
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       background: #05070a;
@@ -523,7 +763,7 @@
 
     .footer-row {
       display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 3rem;
       align-items: start;
       margin-bottom: 2.5rem;
@@ -532,6 +772,16 @@
     .footer-col {
       display: flex;
       flex-direction: column;
+    }
+
+    .footer-col.center-col {
+      align-items: center;
+      text-align: center;
+    }
+
+    .footer-col.right-col {
+      align-items: flex-end;
+      text-align: right;
     }
 
     .footer-wordmark {
@@ -547,7 +797,7 @@
     .footer-listening-tag {
       font-family: var(--font-mono);
       font-size: 0.85rem;
-      color: var(--accent-cyan);
+      color: var(--accent-blue);
       margin-bottom: 1rem;
     }
 
@@ -555,7 +805,7 @@
       font-size: 0.88rem;
       color: var(--text-muted);
       line-height: 1.6;
-      border-left: 2px solid var(--accent-cyan);
+      border-left: 2px solid var(--accent-blue);
       padding-left: 0.85rem;
       margin-bottom: 0.85rem;
     }
@@ -563,7 +813,7 @@
     .footer-door-line {
       font-family: var(--font-mono);
       font-size: 0.9rem;
-      color: var(--accent-emerald);
+      color: var(--accent-blue);
       margin-top: 0.25rem;
     }
 
@@ -579,7 +829,7 @@
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 0.55rem;
+      gap: 0.65rem;
     }
 
     .footer-links a {
@@ -591,34 +841,7 @@
     }
 
     .footer-links a:hover {
-      color: var(--accent-cyan);
-    }
-
-    .linkedin-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-    }
-
-    .linkedin-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--text-muted);
-      text-decoration: none;
-      font-family: var(--font-mono);
-      font-size: 0.88rem;
-      transition: color 0.2s ease;
-    }
-
-    .linkedin-link:hover {
-      color: var(--accent-cyan);
-    }
-
-    .linkedin-svg {
-      width: 14px;
-      height: 14px;
-      fill: currentColor;
+      color: var(--accent-blue);
     }
 
     .footer-bottom {
@@ -626,27 +849,41 @@
       padding-top: 1.5rem;
       text-align: center;
       font-family: var(--font-mono);
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       color: var(--text-dim);
     }
 
-    /* RESPONSIVE BREAKPOINTS */
+    .linkedin-link-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin: 0 0.4rem;
+      transition: color 0.2s ease;
+    }
+
+    .linkedin-link-item:hover { color: var(--accent-blue); }
+
+    .linkedin-icon-svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* RESPONSIVE */
     @media (max-width: 850px) {
-      .footer-row {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-      }
+      .footer-row { grid-template-columns: 1fr; gap: 2rem; text-align: left !important; }
+      .footer-col { align-items: flex-start !important; }
       .hero-title { font-size: 2.5rem; }
-      .hero-waveform-container { display: none; }
-      .hero-title-row { flex-direction: column; gap: 0.5rem; }
+      .braille-scroll-tracker { display: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- FAINT SUBLIMINAL INDIA LINE-ART BACKGROUND -->
+  <!-- FAINT SUBLIMINAL INDIA LINE-ART BACKGROUND SKETCHES -->
   <div class="bg-sketches">
-    <!-- Aadhaar Appointment Form Sketch -->
     <svg class="sketch-item sketch-aadhaar" viewBox="0 0 200 150">
       <rect x="5" y="5" width="190" height="140" rx="4"/>
       <line x1="20" y1="25" x2="100" y2="25"/>
@@ -654,14 +891,12 @@
       <rect x="20" y="75" width="160" height="20" rx="2"/>
       <rect x="20" y="110" width="70" height="20" rx="2"/>
     </svg>
-    <!-- UPI Payment Screen Sketch -->
     <svg class="sketch-item sketch-upi" viewBox="0 0 180 160">
       <rect x="5" y="5" width="170" height="150" rx="8"/>
       <circle cx="90" cy="45" r="20"/>
       <line x1="40" y1="80" x2="140" y2="80"/>
       <rect x="40" y="100" width="100" height="25" rx="4"/>
     </svg>
-    <!-- Train Ticket Booking Sketch -->
     <svg class="sketch-item sketch-train" viewBox="0 0 220 140">
       <rect x="5" y="5" width="210" height="130" rx="4"/>
       <line x1="15" y1="20" x2="120" y2="20"/>
@@ -669,7 +904,6 @@
       <rect x="110" y="40" width="85" height="30" rx="2"/>
       <rect x="15" y="85" width="180" height="30" rx="4"/>
     </svg>
-    <!-- Delivery Order Screen Sketch -->
     <svg class="sketch-item sketch-delivery" viewBox="0 0 190 150">
       <rect x="5" y="5" width="180" height="140" rx="6"/>
       <rect x="20" y="20" width="40" height="40" rx="4"/>
@@ -677,7 +911,6 @@
       <line x1="70" y1="45" x2="130" y2="45"/>
       <rect x="20" y="75" width="150" height="45" rx="4"/>
     </svg>
-    <!-- Cyber Crime Complaint Form Sketch -->
     <svg class="sketch-item sketch-cyber" viewBox="0 0 220 150">
       <rect x="5" y="5" width="210" height="140" rx="4"/>
       <line x1="20" y1="25" x2="140" y2="25"/>
@@ -691,72 +924,32 @@
   <header>
     <div class="container nav-inner">
       <a href="#home" class="brand-group" onclick="switchTab('home', event)">
-        <!-- Custom Hand-drawn Cat Logo -->
-        <img src="logo.jpg" alt="Iris Cat Logo" class="brand-logo-img">
-        <span class="brand-name">IRIS</span>
+        <!-- Brand Logo (Icon + Wordmark Together) -->
+        <img src="brand-logo.png" alt="IRIS Logo" class="brand-logo-img">
       </a>
 
-      <nav id="navbar-links">
+      <nav id="navbar">
         <a class="nav-item active" data-tab="home" onclick="switchTab('home', event)">Home</a>
         <a class="nav-item" data-tab="origins" onclick="switchTab('origins', event)">Origins</a>
         <a class="nav-item" data-tab="stack" onclick="switchTab('stack', event)">The Stack</a>
-        <a class="nav-item" data-tab="building" onclick="switchTab('building', event)">Building</a>
+        <a class="nav-item" data-tab="buildlog" onclick="switchTab('buildlog', event)">Build Log</a>
         <a class="nav-item" data-tab="demo" onclick="switchTab('demo', event)">Demo</a>
         <a href="https://github.com/ashima19arora/iris-voice-assistant" target="_blank" rel="noopener" class="github-nav-link">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
           GitHub
         </a>
+        <div id="nav-indicator"></div>
       </nav>
     </div>
   </header>
 
-  <!-- VIEW 1: HOME (SELF-CONTAINED PAGE) -->
+  <!-- VIEW 1: HOME PAGE -->
   <div id="view-home" class="view-content active">
     <main class="container">
       <div class="hero-wrapper">
-        
-        <!-- NEON AUDIO WAVEFORMS (MIC INPUT VISUALIZER) -->
-        <div class="hero-waveform-container" title="Listening waveform">
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-        </div>
-
-        <!-- HERO TITLE & LAUREL WREATH MEDALLION BADGE -->
-        <div class="hero-title-row">
-          <h1 class="hero-title">
-            <span id="typewriter-text"></span><span class="cursor"></span>
-          </h1>
-
-          <!-- CIRCULAR LAUREL WREATH MEDALLION BADGE WITH RIBBONS -->
-          <div class="hero-medallion-badge" title="the internet's braille">
-            <svg class="medallion-svg" viewBox="0 0 100 120">
-              <!-- Outer Glowing Circle -->
-              <circle cx="50" cy="45" r="38" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="4 2"/>
-              <circle cx="50" cy="45" r="32" fill="rgba(6, 182, 212, 0.08)" stroke="#10b981" stroke-width="1.5"/>
-              
-              <!-- Laurel Wreath Leaves (Left) -->
-              <path d="M26 48 C24 40 28 32 34 26 C36 28 34 34 30 38 C32 30 38 24 44 20 C42 24 40 30 36 34" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round"/>
-              <path d="M25 54 C24 46 27 40 32 34" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round"/>
-
-              <!-- Laurel Wreath Leaves (Right) -->
-              <path d="M74 48 C76 40 72 32 66 26 C64 28 66 34 70 38 C68 30 62 24 56 20 C58 24 60 30 64 34" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round"/>
-              <path d="M75 54 C76 46 73 40 68 34" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round"/>
-
-              <!-- Central Star -->
-              <polygon points="50,34 53,41 60,42 55,47 56,54 50,50 44,54 45,47 40,42 47,41" fill="#06b6d4"/>
-
-              <!-- Ribbon Tails Below Medallion -->
-              <!-- Left Ribbon Tail -->
-              <path d="M40 76 L32 112 L42 104 L50 112 L46 76 Z" fill="rgba(6, 182, 212, 0.25)" stroke="#06b6d4" stroke-width="1.5"/>
-              <!-- Right Ribbon Tail -->
-              <path d="M60 76 L68 112 L58 104 L50 112 L54 76 Z" fill="rgba(16, 185, 129, 0.25)" stroke="#10b981" stroke-width="1.5"/>
-            </svg>
-            <span class="medallion-text">the internet's braille</span>
-          </div>
-        </div>
+        <h1 class="hero-title">
+          <span id="typewriter-text"></span><span class="cursor"></span>
+        </h1>
 
         <p class="hero-subtitle" id="hero-sub">
           the internet never got its braille. i'm here to be it.
@@ -792,44 +985,326 @@
           </div>
         </div>
 
-        <!-- FEATURE HIGHLIGHTS (FLOATING PILLS) -->
-        <div class="features-floating-wrapper">
-          <div class="floating-pill">offline speech recognition</div>
-          <div class="floating-pill">wake word activation</div>
-          <div class="floating-pill">hands-free control</div>
-          <div class="floating-pill">works without internet</div>
+        <!-- FEATURE HIGHLIGHTS (DRIFTING ANIMATED PILLS) -->
+        <div class="features-pills-grid">
+          <div class="feature-pill">offline speech recognition</div>
+          <div class="feature-pill">wake word activation</div>
+          <div class="feature-pill">hands-free control</div>
+          <div class="feature-pill">works without internet</div>
+          <div class="feature-pill">task templates for high-friction services</div>
+          <div class="feature-pill">spoken confirmation before irreversible actions</div>
+          <div class="feature-pill">narrated execution</div>
+          <div class="feature-pill">failure honesty</div>
         </div>
 
       </div>
     </main>
   </div>
 
-  <!-- VIEW 2: ORIGINS (UNBUILT / SEPARATE VIEW) -->
+  <!-- VIEW 2: ORIGINS PAGE -->
   <div id="view-origins" class="view-content">
-    <main class="container empty-view-container">
-      <!-- Unbuilt / empty page view -->
+    <main class="container">
+      <div class="origins-wrapper">
+        
+        <!-- SECTION 1: THE WORLD SPED UP -->
+        <section class="origins-section">
+          <h1 class="origins-main-title orig-heading" data-typewriter="the world sped up. not everyone got a seat."></h1>
+          
+          <div class="origins-body reveal-text">
+            <p>
+              Learning. Paying bills. Booking a government appointment. Filing a complaint. Ordering what you need. All of it used to happen in a physical world, with physical adaptations — a form someone could read aloud to you, a counter you could walk up to and ask.
+            </p>
+            <p>
+              Everything moved onto a screen that assumes you can see it, read it, and click precisely — fast enough to keep up with a form that times out. For millions of people, the train didn't stop for them.
+            </p>
+            <p>
+              For the people who can't keep up, the alternative isn't a workaround. It's standing in long lines. Asking a stranger to read a form meant to be private. Handing over your bank details, your medical report, and hoping they get it right.
+            </p>
+          </div>
+        </section>
+
+        <!-- SECTION 2: THE NUMBERS -->
+        <section class="origins-section">
+          <h2 class="origins-heading orig-heading" data-typewriter="// THE NUMBERS"></h2>
+
+          <div class="origins-stats-grid reveal-text">
+            <div class="origins-stat-card">
+              <div class="origins-stat-num" data-target="26.8" data-suffix="M">0</div>
+              <div class="origins-stat-label">people with disabilities in India</div>
+            </div>
+            <div class="origins-stat-card">
+              <div class="origins-stat-num" data-target="250" data-suffix="M">0</div>
+              <div class="origins-stat-label">Indian adults with limited literacy</div>
+            </div>
+            <div class="origins-stat-card">
+              <div class="origins-stat-num" data-target="130" data-suffix="M">0</div>
+              <div class="origins-stat-label">elderly citizens counted as digitally illiterate</div>
+            </div>
+          </div>
+
+          <div class="legal-context-box reveal-text">
+            The legal right to access already exists — the <a href="https://disabilityaffairs.gov.in" target="_blank" rel="noopener" class="accent-link">RPWD Act 2016</a> requires reasonable accommodation, and <a href="https://gigw.gov.in" target="_blank" rel="noopener" class="accent-link">GIGW 3.0</a> sets the accessibility standard for government platforms. Enforcement is weak: the number of accessible central government websites has been stuck at 95 since 2020.
+          </div>
+        </section>
+
+        <!-- SECTION 3: THE SOLUTION: IRIS -->
+        <section class="origins-section">
+          <h2 class="origins-heading orig-heading" data-typewriter="The Solution: Iris"></h2>
+          
+          <div class="origins-body reveal-text">
+            <p>
+              Iris is a voice-first assistant that sits at the OS level — not inside one browser tab, but across the whole desktop. It listens for a spoken wake phrase, takes a command, and executes it: opening apps, navigating sites, filling out forms, completing multi-step tasks. It narrates what it's doing as it works, and checks in before doing anything that can't be undone.
+            </p>
+            <p>
+              To make specific, high-friction tasks genuinely usable — not just "open this app" — Iris includes pre-built task templates for services people actually struggle with: booking a government appointment, paying a bill, navigating a course platform. Instead of stringing together a dozen small commands, one spoken request walks through the whole flow.
+            </p>
+          </div>
+
+          <div class="origins-demo-widget reveal-text" onclick="switchTab('demo', event)">
+            <div style="font-size: 2.2rem; margin-bottom: 0.5rem; color: var(--accent-blue);">⚡</div>
+            <div style="font-family: var(--font-mono); font-size: 1.15rem; color: var(--text-main); margin-bottom: 0.5rem;">
+              [ Interactive Voice Assistant Prototype ]
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.9rem;">
+              Click to view prototype details on the Demo page →
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 4: WHY IRIS -->
+        <section class="origins-section">
+          <h2 class="origins-heading orig-heading" data-typewriter="Why Iris"></h2>
+          
+          <div class="origins-body reveal-text">
+            <p>
+              Existing tools weren't built for this. Screen-reader-paired software assumes English fluency and costs real money — JAWS runs $95/year and up, over $1,000 for a perpetual license. Windows' own voice control is English-only and needs internet to work. None of them check in before acting, or admit when something went wrong.
+            </p>
+            <p style="font-weight: 600; color: var(--text-main); margin-top: 1rem;">
+              Iris is different by design:
+            </p>
+
+            <div class="checklist-plain">
+              <div class="check-line"><span class="check-mark">✓</span> confirmation before anything irreversible</div>
+              <div class="check-line"><span class="check-mark">✓</span> narrates what it's doing, out loud, as it works</div>
+              <div class="check-line"><span class="check-mark">✓</span> task templates for the services people actually get stuck on</div>
+              <div class="check-line"><span class="check-mark">✓</span> offline — no internet required</div>
+              <div class="check-line"><span class="check-mark">✓</span> free</div>
+              <div class="check-line"><span class="check-mark">✓</span> OS-level — the whole desktop, not just one browser tab</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 5: A WORLD WITH IRIS -->
+        <section class="origins-section">
+          <h2 class="origins-heading orig-heading" data-typewriter="A World With Iris"></h2>
+          
+          <div class="origins-body reveal-text">
+            <p>
+              No one stands in line to ask a stranger to read their appointment letter aloud. No one hands their phone to someone else to check if a bill got paid. You ask Iris to book the appointment, and it books it. You ask it to check the bill, and it tells you.
+            </p>
+            <p style="font-size: 1.25rem; font-family: var(--font-mono); color: var(--accent-blue); margin-top: 1.5rem;">
+              The world will keep moving fast. This time, it doesn't have to leave anyone standing on the platform.
+            </p>
+          </div>
+        </section>
+
+      </div>
     </main>
   </div>
 
-  <!-- VIEW 3: THE STACK (UNBUILT / SEPARATE VIEW) -->
+  <!-- VIEW 3: THE STACK (INTERACTIVE STORYBOOK SCRAPBOOK) -->
   <div id="view-stack" class="view-content">
-    <main class="container empty-view-container">
-      <!-- Unbuilt / empty page view -->
+    <main class="container">
+      <div class="book-wrapper">
+        <div class="book-container">
+          
+          <!-- COVER -->
+          <div class="book-page active" data-page="0">
+            <div class="book-cover-title">THE STACK</div>
+            <div class="book-cover-emblem">❖</div>
+            <p style="text-align: center; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.9rem; margin-top: 2rem;">
+              An architectural scrapbook of local compute & zero-cloud execution.
+            </p>
+            <p style="text-align: center; color: var(--accent-blue); font-family: var(--font-mono); font-size: 0.82rem; margin-top: 3rem;">
+              [ Click Next or use Arrow keys to turn page ]
+            </p>
+          </div>
+
+          <!-- PAGE 1 -->
+          <div class="book-page" data-page="1">
+            <h3 style="font-family: var(--font-mono); color: var(--accent-blue); margin-bottom: 1.5rem;">// PAGE 01 — THE FOUNDATION</h3>
+            <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text-main); font-style: italic;">
+              "We didn't build Iris out of standard cloud APIs. When your interface is built for people who cannot verify if a black-box model got it right, every layer of the stack must be local, deterministic, and inspectable."
+            </p>
+          </div>
+
+          <!-- PAGE 2 -->
+          <div class="book-page" data-page="2">
+            <h3 style="font-family: var(--font-mono); color: var(--accent-blue); margin-bottom: 1rem;">// PAGE 02 — SPEECH-TO-TEXT</h3>
+            <h4 style="font-family: var(--font-mono); font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem;">NVIDIA Parakeet TDT 0.6B (int8), via onnx-asr</h4>
+            <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.7;">
+              Chosen because Whisper loaded too slowly for instant voice commands (~1.2s delay) and Vosk failed on complex Indian-English prosody. Parakeet delivers ~50ms local transcription latency on standard CPU hardware with zero data leaving the device.
+            </p>
+          </div>
+
+          <!-- PAGE 3 -->
+          <div class="book-page" data-page="3">
+            <h3 style="font-family: var(--font-mono); color: var(--accent-blue); margin-bottom: 1.5rem;">// PAGE 03 — INFRASTRUCTURE</h3>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px dashed var(--accent-blue); padding: 2rem; border-radius: 8px; text-align: center;">
+              <p style="font-family: var(--font-mono); color: var(--text-main);">
+                [ AWS integration — details pending teammate's write-up ]
+              </p>
+            </div>
+          </div>
+
+          <!-- PAGE 4 -->
+          <div class="book-page" data-page="4">
+            <h3 style="font-family: var(--font-mono); color: var(--accent-blue); margin-bottom: 1rem;">// PAGE 04 — AUTHORSHIP & AI TOOLING</h3>
+            <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1rem;">
+              <strong style="color: var(--text-main);">Claude (Anthropic)</strong> — architecture planning, code review, debugging, and content writing.
+            </p>
+            <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1.5rem;">
+              <strong style="color: var(--text-main);">Antigravity (Google)</strong> — building and iterating this web experience.
+            </p>
+            <p style="font-size: 0.85rem; color: var(--text-dim); font-style: italic;">
+              Note: These are the developer tools used during construction, not tools the entire project was built by, to remain transparent about actual authorship.
+            </p>
+          </div>
+
+          <!-- PAGE 5 -->
+          <div class="book-page" data-page="5">
+            <h3 style="font-family: var(--font-mono); color: var(--accent-blue); margin-bottom: 1.5rem;">// PAGE 05 — AUTOMATION ENGINE</h3>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px dashed var(--accent-emerald); padding: 2rem; border-radius: 8px; text-align: center;">
+              <p style="font-family: var(--font-mono); color: var(--text-main);">
+                [ Teammate's Engine & Automation Tools — pending Mayank's documentation ]
+              </p>
+            </div>
+          </div>
+
+          <!-- PAGE 6 -->
+          <div class="book-page" data-page="6">
+            <h3 style="font-family: var(--font-mono); color: var(--accent-blue); margin-bottom: 1.5rem;">// PAGE 06 — THE PROMISE</h3>
+            <p style="font-size: 1.15rem; line-height: 1.8; color: var(--text-main);">
+              The stack is a promise: no tracking, no subscription paywalls, no silent execution. Just local compute serving human agency.
+            </p>
+          </div>
+
+          <!-- BOOK NAVIGATION CONTROLS -->
+          <div class="book-controls">
+            <button class="btn-bracket" onclick="turnPage(-1)">← Previous</button>
+            <span class="book-page-num" id="book-page-indicator">Cover</span>
+            <button class="btn-bracket" onclick="turnPage(1)">Next →</button>
+          </div>
+
+        </div>
+      </div>
     </main>
   </div>
 
-  <!-- VIEW 4: BUILDING (UNBUILT / SEPARATE VIEW) -->
-  <div id="view-building" class="view-content">
-    <main class="container empty-view-container">
-      <!-- Unbuilt / empty page view -->
+  <!-- VIEW 4: BUILD LOG PAGE -->
+  <div id="view-buildlog" class="view-content">
+    
+    <!-- Floating Braille Cell Scroll Tracker -->
+    <div class="braille-scroll-tracker" id="braille-tracker" title="Scroll Braille Dot Tracker">
+      <div class="b-dot" id="bdot1"></div>
+      <div class="b-dot" id="bdot4"></div>
+      <div class="b-dot" id="bdot2"></div>
+      <div class="b-dot" id="bdot5"></div>
+      <div class="b-dot" id="bdot3"></div>
+      <div class="b-dot" id="bdot6"></div>
+    </div>
+
+    <main class="container">
+      <div class="buildlog-wrapper">
+        
+        <!-- ENTRY 0: SYSTEM MESSAGE (RESEARCH FIRST) -->
+        <div class="system-entry-card">
+          <div class="system-entry-title" id="system-typewriter-title"></div>
+          <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.75; text-align: left;">
+            most assistive tech gets built for disabled and underserved users instead of with them — decisions made from guesswork, user input arriving late or reduced to validation instead of real co-creation. it's a well-documented failure pattern: 29-35% of assistive devices get abandoned entirely. we checked every target group against real research and real prevalence data before writing a single line of code, specifically so this wasn't guesswork.
+          </p>
+        </div>
+
+        <!-- CHAT TIMELINE (WHATSAPP / iMESSAGE STYLE) -->
+        <div class="chat-timeline">
+          
+          <!-- ENTRY 1: Ashima -->
+          <div class="chat-row left">
+            <div class="chat-avatar avatar-ashima">A</div>
+            <div>
+              <div class="chat-sender">Ashima</div>
+              <div class="chat-bubble">
+                "basic mic-to-text, nothing fancy, just proving the mic actually works."
+              </div>
+            </div>
+          </div>
+
+          <!-- ENTRY 2: Mayank -->
+          <div class="chat-row right">
+            <div class="chat-avatar avatar-mayank">M</div>
+            <div>
+              <div class="chat-sender" style="text-align: right;">Mayank</div>
+              <div class="chat-bubble">
+                "built out the action execution layer — actually opening apps, filling forms, not just listening." [placeholder]
+              </div>
+            </div>
+          </div>
+
+          <!-- ENTRY 3: Ashima -->
+          <div class="chat-row left">
+            <div class="chat-avatar avatar-ashima">A</div>
+            <div>
+              <div class="chat-sender">Ashima</div>
+              <div class="chat-bubble">
+                "spent way too long picking a speech engine. whisper loaded too slow, vosk was fast but wrong half the time, landed on parakeet."
+              </div>
+            </div>
+          </div>
+
+          <!-- ENTRY 4: Mayank -->
+          <div class="chat-row right">
+            <div class="chat-avatar avatar-mayank">M</div>
+            <div>
+              <div class="chat-sender" style="text-align: right;">Mayank</div>
+              <div class="chat-bubble">
+                "added the security layer — guardrails before anything destructive runs." [placeholder]
+              </div>
+            </div>
+          </div>
+
+          <!-- ENTRY 5: Ashima -->
+          <div class="chat-row left">
+            <div class="chat-avatar avatar-ashima">A</div>
+            <div>
+              <div class="chat-sender">Ashima</div>
+              <div class="chat-bubble">
+                "tested against 100+ real phrases. found the bugs regex parsing can't hide from."
+              </div>
+            </div>
+          </div>
+
+          <!-- ENTRY 6: Ashima -->
+          <div class="chat-row left">
+            <div class="chat-avatar avatar-ashima">A</div>
+            <div>
+              <div class="chat-sender">Ashima</div>
+              <div class="chat-bubble">
+                "renamed accio → iris. fresh repo, ported everything, started on the site."
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </main>
   </div>
 
-  <!-- VIEW 5: DEMO (PLACEHOLDER VIEW) -->
+  <!-- VIEW 5: DEMO PAGE -->
   <div id="view-demo" class="view-content">
     <main class="container">
-      <div class="demo-card">
-        <div class="demo-icon">⚙️</div>
+      <div style="background: var(--bg-card); border: 1px dashed var(--accent-blue); border-radius: 8px; padding: 3.5rem 2rem; text-align: center; max-width: 650px; margin: 2rem auto;">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent-blue);">⚙️</div>
         <h3 style="font-family: var(--font-mono); font-size: 1.3rem; margin-bottom: 0.75rem; color: var(--text-main);">
           [ Demo coming soon — prototype in progress ]
         </h3>
@@ -844,7 +1319,7 @@
     </main>
   </div>
 
-  <!-- FOOTER (FULL CLEANUP: ALIGNED 3 COLUMNS) -->
+  <!-- FOOTER (EVENLY SPACED 3 COLUMNS) -->
   <footer>
     <div class="container">
       <div class="footer-row">
@@ -860,75 +1335,106 @@
           <div class="footer-door-line">the door everyone deserves</div>
         </div>
 
-        <!-- COLUMN 2: CENTER (LINKEDIN PROFILES) -->
-        <div class="footer-col">
+        <!-- COLUMN 2: CENTER (REFERENCES) -->
+        <div class="footer-col center-col">
           <div class="footer-heading">References</div>
-          <div class="linkedin-list">
-            <a href="https://www.linkedin.com/in/ashima-arora-0396ab336/" target="_blank" rel="noopener" class="linkedin-link">
-              <svg class="linkedin-svg" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
-              [in] Ashima
-            </a>
-            <a href="https://www.linkedin.com/in/mayankgarg18/" target="_blank" rel="noopener" class="linkedin-link">
-              <svg class="linkedin-svg" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
-              [in] Mayank
-            </a>
-          </div>
+          <ul class="footer-links">
+            <li><a href="https://disabilityaffairs.gov.in" target="_blank" rel="noopener">→ RPWD Act 2016</a></li>
+            <li><a href="https://gigw.gov.in" target="_blank" rel="noopener">→ GIGW 3.0</a></li>
+            <li><a href="https://www.un.org/development/desa/disabilities/convention-on-the-rights-of-persons-with-disabilities/article-9-accessibility.html" target="_blank" rel="noopener">→ UN CRPD Article 9</a></li>
+            <li><a href="https://www.w3.org/WAI/standards-guidelines/aria/" target="_blank" rel="noopener">→ W3C WAI-ARIA 1.2</a></li>
+          </ul>
         </div>
 
-        <!-- COLUMN 3: FAR RIGHT (QUICK LINKS) -->
-        <div class="footer-col" style="align-items: flex-start;">
+        <!-- COLUMN 3: RIGHT (QUICK LINKS SHIFTED RIGHT) -->
+        <div class="footer-col right-col">
           <div class="footer-heading">Quick Links</div>
           <ul class="footer-links">
             <li><a onclick="switchTab('home', event)" style="cursor:pointer;">→ Home</a></li>
             <li><a onclick="switchTab('origins', event)" style="cursor:pointer;">→ Origins</a></li>
             <li><a onclick="switchTab('stack', event)" style="cursor:pointer;">→ The Stack</a></li>
-            <li><a onclick="switchTab('building', event)" style="cursor:pointer;">→ Building</a></li>
+            <li><a onclick="switchTab('buildlog', event)" style="cursor:pointer;">→ Build Log</a></li>
             <li><a onclick="switchTab('demo', event)" style="cursor:pointer;">→ Demo</a></li>
           </ul>
         </div>
       </div>
 
-      <!-- BOTTOM BAR -->
+      <!-- BOTTOM BAR (MAYANK FIRST WITH LINKEDIN SVG LOGOS) -->
       <div class="footer-bottom">
-        © 2026 iris · made with ♡ during Bharat Builds Tour
+        made with ♡ during Bharat Builds Tour by 
+        <a href="https://www.linkedin.com/in/mayankgarg18/" target="_blank" rel="noopener" class="linkedin-link-item">
+          <svg class="linkedin-icon-svg" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+          Mayank
+        </a>
+        <a href="https://www.linkedin.com/in/ashima-arora-0396ab336/" target="_blank" rel="noopener" class="linkedin-link-item">
+          <svg class="linkedin-icon-svg" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+          Ashima
+        </a>
       </div>
     </div>
   </footer>
 
-  <!-- VANILLA JAVASCRIPT FOR SPA TAB SWITCHING & EFFECTS -->
+  <!-- JAVASCRIPT LOGIC -->
   <script>
-    // 1. SINGLE-PAGE APPLICATION TAB SWITCHING
+    // 1. SLIDING CURSOR-FOLLOWING NAV UNDERLINE
+    const navbar = document.getElementById('navbar');
+    const navIndicator = document.getElementById('nav-indicator');
+
+    function updateNavIndicator(targetEl) {
+      if (!targetEl || !navIndicator) return;
+      navIndicator.style.left = targetEl.offsetLeft + 'px';
+      navIndicator.style.width = targetEl.offsetWidth + 'px';
+    }
+
+    window.addEventListener('load', () => {
+      const activeNav = document.querySelector('.nav-item.active');
+      if (activeNav) updateNavIndicator(activeNav);
+    });
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('mouseenter', (e) => {
+        updateNavIndicator(e.target);
+      });
+    });
+
+    navbar.addEventListener('mouseleave', () => {
+      const activeNav = document.querySelector('.nav-item.active');
+      if (activeNav) updateNavIndicator(activeNav);
+    });
+
+    // 2. SPA TAB SWITCHING
     function switchTab(tabId, event) {
       if (event) event.preventDefault();
 
-      // Hide all view containers
       document.querySelectorAll('.view-content').forEach(view => {
         view.classList.remove('active');
       });
 
-      // Deactivate all nav link underlines
       document.querySelectorAll('.nav-item').forEach(nav => {
         nav.classList.remove('active');
       });
 
-      // Activate target view
       const targetView = document.getElementById('view-' + tabId);
-      if (targetView) {
-        targetView.classList.add('active');
-      }
+      if (targetView) targetView.classList.add('active');
 
-      // Activate target nav item
       const targetNav = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
       if (targetNav) {
         targetNav.classList.add('active');
+        updateNavIndicator(targetNav);
       }
 
-      // Scroll to top of page smoothly
       window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Trigger page-specific animations
+      if (tabId === 'origins') {
+        initOriginsObserver();
+      } else if (tabId === 'buildlog') {
+        initBuildlogTypewriter();
+      }
     }
 
+    // 3. HOME HERO TYPEWRITER
     document.addEventListener('DOMContentLoaded', () => {
-      // 2. TYPEWRITER ANIMATION FOR "hi, i'm iris!"
       const typewriterTarget = document.getElementById('typewriter-text');
       const textToType = "hi, i'm iris!";
       let charIndex = 0;
@@ -939,19 +1445,14 @@
           charIndex++;
           setTimeout(typeNextChar, 100);
         } else {
-          // Fade in subheadings after typewriter completes
           document.getElementById('hero-sub').classList.add('hero-fadeIn');
           document.getElementById('hero-desc').classList.add('hero-fadeIn');
-          
-          // Trigger terminal streaming lines
           startTerminalStreaming();
         }
       }
 
-      // Start typewriter after brief load delay
       setTimeout(typeNextChar, 300);
 
-      // 3. TERMINAL STREAMED-IN LINES
       function startTerminalStreaming() {
         const line1 = document.getElementById('line1');
         const line2 = document.getElementById('line2');
@@ -962,6 +1463,157 @@
         setTimeout(() => line2.classList.add('visible'), 1200);
         setTimeout(() => line3.classList.add('visible'), 2200);
         setTimeout(() => line4.classList.add('visible'), 3200);
+      }
+    });
+
+    // 4. ORIGINS REVEAL ON SCROLL & TYPEWRITER HEADINGS
+    function initOriginsObserver() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+
+            // Check for typewriter heading
+            if (entry.target.classList.contains('orig-heading') && !entry.target.dataset.typed) {
+              entry.target.dataset.typed = 'true';
+              typeHeadingText(entry.target);
+            }
+
+            // Check for stats counter
+            if (entry.target.querySelector('.origins-stat-num') && !entry.target.dataset.counted) {
+              entry.target.dataset.counted = 'true';
+              runStatsCounter(entry.target);
+            }
+          }
+        });
+      }, { threshold: 0.2 });
+
+      document.querySelectorAll('#view-origins .reveal-text, #view-origins .orig-heading').forEach(el => {
+        observer.observe(el);
+      });
+    }
+
+    function typeHeadingText(headingEl) {
+      const text = headingEl.getAttribute('data-typewriter') || '';
+      headingEl.textContent = '';
+      let idx = 0;
+      const cursorSpan = document.createElement('span');
+      cursorSpan.className = 'cursor';
+      headingEl.appendChild(cursorSpan);
+
+      function typeChar() {
+        if (idx < text.length) {
+          cursorSpan.insertAdjacentText('beforebegin', text.charAt(idx));
+          idx++;
+          setTimeout(typeChar, 70);
+        }
+      }
+      typeChar();
+    }
+
+    function runStatsCounter(container) {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      function clickSound() {
+        if (!audioCtx) return;
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.03);
+        } catch(e) {}
+      }
+
+      container.querySelectorAll('.origins-stat-num').forEach(stat => {
+        const target = parseFloat(stat.getAttribute('data-target'));
+        const suffix = stat.getAttribute('data-suffix') || '';
+        let current = 0;
+        const duration = 2000; // 2 seconds slow count
+        const steps = 50;
+        const stepValue = target / steps;
+
+        const timer = setInterval(() => {
+          current += stepValue;
+          clickSound();
+          if (current >= target) {
+            stat.textContent = target + ' ' + suffix;
+            clearInterval(timer);
+          } else {
+            stat.textContent = current.toFixed(current < 10 ? 1 : 0) + ' ' + suffix;
+          }
+        }, duration / steps);
+      });
+    }
+
+    // 5. PART 3: BOOK PAGE TURN MECHANIC
+    let currentBookPage = 0;
+    const totalBookPages = 6;
+
+    function turnPage(delta) {
+      const pages = document.querySelectorAll('.book-page');
+      pages[currentBookPage].classList.remove('active');
+
+      currentBookPage += delta;
+      if (currentBookPage < 0) currentBookPage = 0;
+      if (currentBookPage >= pages.length) currentBookPage = pages.length - 1;
+
+      pages[currentBookPage].classList.add('active');
+
+      const indicator = document.getElementById('book-page-indicator');
+      if (indicator) {
+        indicator.textContent = currentBookPage === 0 ? 'Cover' : `Page ${currentBookPage} of ${pages.length - 1}`;
+      }
+    }
+
+    // Keyboard Arrow keys for book
+    document.addEventListener('keydown', (e) => {
+      const stackView = document.getElementById('view-stack');
+      if (stackView && stackView.classList.contains('active')) {
+        if (e.key === 'ArrowRight') turnPage(1);
+        if (e.key === 'ArrowLeft') turnPage(-1);
+      }
+    });
+
+    // 6. BUILD LOG ENTRY 0 TYPEWRITER & BRAILLE SCROLL EFFECT
+    function initBuildlogTypewriter() {
+      const el = document.getElementById('system-typewriter-title');
+      if (el && !el.dataset.typed) {
+        el.dataset.typed = 'true';
+        const text = "first commit: researching....";
+        let idx = 0;
+        const timer = setInterval(() => {
+          if (idx < text.length) {
+            el.textContent += text.charAt(idx);
+            idx++;
+          } else {
+            clearInterval(timer);
+          }
+        }, 80);
+      }
+    }
+
+    // Braille Dot Scroll Tracker
+    window.addEventListener('scroll', () => {
+      const buildlogView = document.getElementById('view-buildlog');
+      if (buildlogView && buildlogView.classList.contains('active')) {
+        const scrollTop = window.scrollY;
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollFraction = Math.min(1, Math.max(0, scrollTop / (maxScroll || 1)));
+
+        // Activate 6 dots progressively based on scrollFraction
+        const activeDots = Math.floor(scrollFraction * 6) + 1;
+        for (let i = 1; i <= 6; i++) {
+          const dot = document.getElementById('bdot' + i);
+          if (dot) {
+            if (i <= activeDots) dot.classList.add('active');
+            else dot.classList.remove('active');
+          }
+        }
       }
     });
   </script>
