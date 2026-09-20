@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iris — the stack</title>
+<meta name="description" content="The engine behind iris: local-first offline voice, zero-trust authorization, and the AWS services that make it smarter when connected.">
+<link rel="icon" href="assets/iris-mark.png">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ---- shared section rhythm ---- */
+.subhead{font-size:13px;letter-spacing:1px;color:var(--cyan);text-align:left;margin:0 0 26px;font-weight:700;}
+.stack-sec{max-width:900px;margin:88px auto 0;padding:0 24px;box-sizing:border-box;}
+.stack-sec:first-of-type{margin-top:56px;}
+.stack-sec p{font-size:15px;line-height:1.85;color:var(--body);margin:0 0 16px;max-width:720px;}
+.stack-sec p:last-child{margin-bottom:0;}
+
+/* ---- section 1: hero/intro ---- */
+h1.stack-title{font-family:'Silkscreen',monospace;font-size:30px;line-height:1.4;color:var(--cream);margin:0 0 20px;max-width:680px;}
+
+/* ---- real pixel-art graphics ---- */
+.stack-img-wrap{margin-top:28px;max-width:100%;}
+.stack-img-wrap img{display:block;width:100%;height:auto;image-rendering:pixelated;}
+
+footer.site-footer{margin-top:88px;}
+
+@media (max-width:700px){
+  h1.stack-title{font-size:24px;}
+}
+</style>
+</head>
+<body>
+<div class="iris-page">
+
+  <nav class="nav">
+    <a class="nav-brand" href="index.html">
+      <img src="assets/iris-mark.png" alt="iris logo">
+      <span>IRIS</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="origins.html">Origins</a></li>
+      <li><a href="the-stack.html" class="active">The Stack</a></li>
+      <li><a href="build-log.html">Build Log</a></li>
+      <li><a href="demo.html">Demo</a></li>
+    </ul>
+    <a class="gh-btn" href="https://github.com/ashima19arora/iris-voice-assistant" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </nav>
+
+  <section id="sec-tech" class="stack-sec reveal">
+    <h2 class="subhead">&gt;tech_stack</h2>
+    <h1 class="stack-title">The Engine Behind Digital Braille</h1>
+    <p>Iris is engineered with a strict Local-First, Cloud-Enhanced architecture built for zero-latency accessibility. By combining high-performance offline voice transcription on device with deterministic zero-trust authorization and optional cloud reasoning, Iris remains fast, private, and 100% operational — with or without an internet connection.</p>
+    <div class="stack-img-wrap">
+      <img src="assets/tech-stack.png" alt="Pixel-art grid of the technologies and tools in the iris stack: NVIDIA Parakeet TDT 0.6B, onnx-asr, pyttsx3, gTTS, pygame, Edge-TTS, boto3, OpenRouter, Amazon Bedrock, Amazon Polly, Amazon Translate, Amazon Comprehend, Amazon DynamoDB, Amazon CloudWatch, strands, AWS Strands Agents, Windows UIAutomation, rapidocr-onnxruntime, Electron, C# (.NET), AWS Amplify, AWS SAM, pyautogui, Playwright, Claude, Google Antigravity, Cursor, Python, PIL/Pillow, numpy, requests, pytest, IAM/STS, LocalStack.">
+    </div>
+  </section>
+
+  <section id="sec-pipeline" class="stack-sec reveal">
+    <h2 class="subhead">&gt;execution_pipeline</h2>
+    <p>Every command Iris hears follows the same path. Simple, exact requests are handled fast and entirely offline — no cloud involved. Only genuinely ambiguous or open-ended requests escalate to reasoning. Every command, on either path, passes through the same security check before it's allowed to execute.</p>
+    <div class="stack-img-wrap">
+      <img src="assets/pipeline.png" alt="Iris core pipeline architecture diagram: mic input (wake word / push-to-talk, speech capture, speech-to-text via NVIDIA Parakeet TDT 0.6B offline on-device via ONNX) feeds fast intent match, which splits into a matched path (security check via AWS Cedar, execute, log, TTS) and an ambiguous path (AI reasoning via AWS Strands + Bedrock / OpenRouter, then the same security check, execute, log to DynamoDB / LocalStack, and spoken result via Polly / TTS).">
+    </div>
+  </section>
+
+  <section id="sec-aws" class="stack-sec reveal">
+    <h2 class="subhead">&gt;aws_architecture</h2>
+    <p>Listening stays on-device for total privacy and low latency. AWS makes Iris smarter, safer, and fully accountable: local Cedar policies enforce zero-trust authorization in under 1ms, Strands Agent SDK structures tool execution, and DynamoDB logs a permanent, tamper-resistant audit trail. Without AWS, core commands run 100% offline; with AWS, Iris gains deep reasoning, neural voice synthesis, and enterprise-grade auditability.</p>
+    <div class="stack-img-wrap">
+      <img src="assets/aws-arch.png" alt="Pixel-art table of AWS and open-source services: Amazon Translate for voice-to-voice translation across 75+ languages, Amazon Comprehend for sentiment detection on spoken input, Amazon DynamoDB as a managed NoSQL database, AWS Amplify hosting the public demo site, AWS Strands Agents orchestrating multi-agent AI workflows with tools, LocalStack simulating AWS services locally at zero cost, boto3 as the official AWS SDK for Python, IAM/STS for least-privilege identity and temporary credentials, and Amazon CloudWatch for metrics and logs.">
+    </div>
+  </section>
+
+  <section id="sec-other" class="stack-sec reveal">
+    <h2 class="subhead">&gt;other_dev_tools</h2>
+    <p>The stack above is what iris runs on. The tools below are what we built it with.</p>
+    <div class="stack-img-wrap">
+      <img src="assets/devtools.png" alt="Other developer tools: Claude for AI architecture and pair-programming, Cursor for AI-assisted development, Antigravity for web development.">
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">iris</div>
+        <p class="foot-tag">still listening, even down here.</p>
+        <blockquote class="foot-quote">"disability isn't a deficit in the person — it's a mismatch between a person and a world built for only one kind of body, one kind of fluency."</blockquote>
+        <p class="foot-door">the door everyone deserves</p>
+      </div>
+      <div class="foot-col">
+        <h2>References</h2>
+        <ul>
+          <li><a href="https://ssepd.odisha.gov.in/sites/default/files/2024-01/RPWD%20ACT.pdf" target="_blank" rel="noopener">RPWD Act 2016</a></li>
+          <li><a href="https://guidelines.india.gov.in/" target="_blank" rel="noopener">GIGW 3.0</a></li>
+          <li><a href="https://www.un.org/development/desa/disabilities/convention-on-the-rights-of-persons-with-disabilities/article-9-accessibility.html" target="_blank" rel="noopener">UN CRPD Article 9</a></li>
+          <li><a href="https://www.w3.org/TR/wai-aria-1.2/" target="_blank" rel="noopener">W3C WAI-ARIA 1.2</a></li>
+          <li><a href="https://www.w3.org/TR/WCAG22/" target="_blank" rel="noopener">WCAG 2.2 Level AAA Guidelines</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h2>Quick Links</h2>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="origins.html">Origins</a></li>
+          <li><a href="the-stack.html">The Stack</a></li>
+          <li><a href="build-log.html">Build Log</a></li>
+          <li><a href="demo.html">Demo</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot-credit">
+      <span>made with &hearts; during Bharat Builds Tour by</span>
+      <a class="credit-link" href="https://www.linkedin.com/in/mayankgarg18/" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn" width="14" height="14">Mayank</a>
+      <a class="credit-link" href="https://www.linkedin.com/in/ashima-arora-0396ab336/" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn" width="14" height="14">Ashima</a>
+    </p>
+  </footer>
+
+</div>
+
+<script>
+document.querySelectorAll('.reveal').forEach((el) => {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting){ entry.target.classList.add('in'); io.unobserve(entry.target); }
+    });
+  }, {threshold:0.12});
+  io.observe(el);
+});
+</script>
+</body>
+</html>

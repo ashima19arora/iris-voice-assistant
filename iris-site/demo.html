@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iris — demo</title>
+<meta name="description" content="Watch iris running end to end, or clone the repository and run the Desktop Orb on your own machine.">
+<link rel="icon" href="assets/iris-mark.png">
+<link rel="stylesheet" href="style.css">
+<style>
+/* page title */
+.demo-hero{max-width:820px;margin:0 auto;padding:56px 24px 0;text-align:center;box-sizing:border-box;}
+h1.demo-h1{font-family:'Silkscreen',monospace;font-size:34px;color:var(--cream);margin:0;}
+.demo-sub{font-size:14.5px;color:var(--cyan);margin:12px 0 0;}
+
+/* video embed */
+.video-wrap{max-width:820px;margin:32px auto 0;padding:0 24px;box-sizing:border-box;}
+.video-frame{background:var(--slate);padding:3px;}
+.video-aspect{position:relative;width:100%;padding-top:56.25%;background:#000;overflow:hidden;}
+.video-aspect iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
+
+/* run-locally section */
+.run-local{max-width:720px;margin:64px auto 0;padding:0 24px;box-sizing:border-box;}
+h2.run-h2{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cream);font-weight:700;margin:0 0 12px;}
+.run-body{font-size:15px;line-height:1.8;color:var(--body);margin:0 0 24px;}
+
+.term-frame{background:var(--slate);padding:3px;}
+.term-inner{background:#0A0F16;padding:0;}
+.term-bar{display:flex;align-items:center;gap:10px;background:#151B24;padding:9px 12px;border-bottom:1px solid #232B38;}
+.term-dots{display:flex;gap:6px;}
+.term-dots span{width:9px;height:9px;background:var(--slate);display:block;}
+.term-title{font-size:11px;color:var(--slate);letter-spacing:1px;}
+.term-body{padding:18px 18px;font-size:13.5px;line-height:2;}
+.term-body .term-line{color:var(--body);}
+.term-body .term-line b{color:var(--cyan);font-weight:500;}
+
+.run-checks{list-style:none;margin:26px 0 0;padding:0;display:flex;flex-direction:column;gap:11px;}
+.run-checks li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.6;color:var(--body);font-weight:700;}
+.run-checks li .check{color:var(--green);flex-shrink:0;}
+
+.run-ctas{display:flex;gap:10px;flex-wrap:wrap;margin:30px 0 0;}
+.brick-btn svg{width:14px;height:14px;}
+
+footer.site-footer{margin-top:70px;}
+</style>
+</head>
+<body>
+<div class="iris-page">
+
+  <nav class="nav">
+    <a class="nav-brand" href="index.html">
+      <img src="assets/iris-mark.png" alt="iris logo">
+      <span>IRIS</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="origins.html">Origins</a></li>
+      <li><a href="the-stack.html">The Stack</a></li>
+      <li><a href="build-log.html">Build Log</a></li>
+      <li><a href="demo.html" class="active">Demo</a></li>
+    </ul>
+    <a class="gh-btn" href="https://github.com/ashima19arora/iris-voice-assistant" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </nav>
+
+  <section class="demo-hero">
+    <h1 class="demo-h1">Try Iris</h1>
+    <p class="demo-sub">a walkthrough of Iris running end to end</p>
+  </section>
+
+  <section class="video-wrap">
+    <div class="video-frame pc-8">
+      <div class="video-aspect">
+        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Iris demo video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="run-local">
+    <h2 class="run-h2">Run it on your own machine</h2>
+    <p class="run-body">Clone the repository and launch the Desktop Orb. It listens for a wake phrase or a right-click, and runs commands entirely on your own machine.</p>
+
+    <div class="term-frame pc-8">
+      <div class="term-inner pc-5">
+        <div class="term-bar">
+          <div class="term-dots"><span></span><span></span><span></span></div>
+          <span class="term-title">terminal</span>
+        </div>
+        <div class="term-body">
+          <div class="term-line">$ git clone https://github.com/ashima19arora/iris-voice-assistant.git</div>
+          <div class="term-line">$ cd iris-voice-assistant</div>
+          <div class="term-line">$ npm install</div>
+          <div class="term-line">$ npm run orb</div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="run-checks">
+      <li><span class="check" aria-hidden="true">✓</span>No API keys required for core commands</li>
+      <li><span class="check" aria-hidden="true">✓</span>Global hotkey (Ctrl + Shift + Space) to summon Iris from anywhere</li>
+      <li><span class="check" aria-hidden="true">✓</span>First launch loads the speech model — 30 to 90 seconds, expected, not a bug.</li>
+    </ul>
+
+    <div class="run-ctas">
+      <a class="brick-btn brick-primary" href="https://github.com/ashima19arora/iris-voice-assistant" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        view on github
+      </a>
+      <a class="brick-btn brick-ghost" href="https://github.com/ashima19arora/iris-voice-assistant/blob/main/HOW_TO_USE.md" target="_blank" rel="noopener">read the full setup guide</a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">iris</div>
+        <p class="foot-tag">still listening, even down here.</p>
+        <blockquote class="foot-quote">"disability isn't a deficit in the person — it's a mismatch between a person and a world built for only one kind of body, one kind of fluency."</blockquote>
+        <p class="foot-door">the door everyone deserves</p>
+      </div>
+      <div class="foot-col">
+        <h2>References</h2>
+        <ul>
+          <li><a href="https://ssepd.odisha.gov.in/sites/default/files/2024-01/RPWD%20ACT.pdf" target="_blank" rel="noopener">RPWD Act 2016</a></li>
+          <li><a href="https://guidelines.india.gov.in/" target="_blank" rel="noopener">GIGW 3.0</a></li>
+          <li><a href="https://www.un.org/development/desa/disabilities/convention-on-the-rights-of-persons-with-disabilities/article-9-accessibility.html" target="_blank" rel="noopener">UN CRPD Article 9</a></li>
+          <li><a href="https://www.w3.org/TR/wai-aria-1.2/" target="_blank" rel="noopener">W3C WAI-ARIA 1.2</a></li>
+          <li><a href="https://www.w3.org/TR/WCAG22/" target="_blank" rel="noopener">WCAG 2.2 Level AAA Guidelines</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h2>Quick Links</h2>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="origins.html">Origins</a></li>
+          <li><a href="the-stack.html">The Stack</a></li>
+          <li><a href="build-log.html">Build Log</a></li>
+          <li><a href="demo.html">Demo</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot-credit">
+      <span>made with &hearts; during Bharat Builds Tour by</span>
+      <a class="credit-link" href="https://www.linkedin.com/in/mayankgarg18/" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn" width="14" height="14">Mayank</a>
+      <a class="credit-link" href="https://www.linkedin.com/in/ashima-arora-0396ab336/" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn" width="14" height="14">Ashima</a>
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>
