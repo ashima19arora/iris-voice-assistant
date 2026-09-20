@@ -27,8 +27,9 @@ FRIENDLY_APP_NAMES = {
     "chrome.exe": "Google Chrome",
     "firefox.exe": "Firefox",
     "brave.exe": "Brave Browser",
+    "antigravity.exe": "Antigravity Code Editor",
     "code.exe": "Visual Studio Code",
-    "cursor.exe": "Cursor",
+    "cursor.exe": "Cursor Code Editor",
     "notepad.exe": "Notepad",
     "explorer.exe": "File Explorer",
     "spotify.exe": "Spotify",
@@ -59,24 +60,34 @@ SYSTEM_PROCESS_IGNORE = {
 }
 
 
+def _is_assistant_window(title: str, proc_name: str) -> bool:
+    t = (title or "").lower()
+    p = (proc_name or "").lower()
+    if any(k in t for k in ("iris orb", "iris ai assistant", "iris hud")):
+        return True
+    if p in ("electron.exe", "iris-orb.exe"):
+        return True
+    return False
+
+
 def get_active_window_info() -> Dict[str, Any]:
     """
-    Returns information about the current foreground/active window:
-    {'title': str, 'app_name': str, 'process_name': str, 'rect': (left, top, right, bottom)}
+    Returns information about the current foreground/active window.
+    Automatically skips the Iris assistant overlay itself to report the true underlying app.
     """
     info = {"title": "", "app_name": "", "process_name": "", "rect": (0, 0, 0, 0)}
     try:
         import win32gui
         import win32process
         import psutil
+        import win32con
 
         hwnd = win32gui.GetForegroundWindow()
         if hwnd:
             title = win32gui.GetWindowText(hwnd).strip()
             info["title"] = title
             try:
-                rect = win32gui.GetWindowRect(hwnd)
-                info["rect"] = rect
+                info["rect"] = win32gui.GetWindowRect(hwnd)
             except Exception:
                 pass
 
@@ -89,8 +100,43 @@ def get_active_window_info() -> Dict[str, Any]:
                     info["app_name"] = FRIENDLY_APP_NAMES.get(proc_name, proc_name.replace(".exe", "").title())
             except Exception:
                 pass
+
+            # If the focused window is the Iris assistant overlay, find the real application beneath it in Z-order
+            if _is_assistant_window(info["title"], info["process_name"]):
+                curr = win32gui.GetWindow(hwnd, win32con.GW_HWNDNEXT)
+                while curr:
+                    if win32gui.IsWindowVisible(curr) and not win32gui.IsIconic(curr):
+                        c_title = win32gui.GetWindowText(curr).strip()
+                        try:
+                            _, c_pid = win32process.GetWindowThreadProcessId(curr)
+                            c_proc = psutil.Process(c_pid).name().lower() if c_pid > 0 else ""
+                        except Exception:
+                            c_proc = ""
+                        if c_title and not _is_assistant_window(c_title, c_proc) and c_proc not in SYSTEM_PROCESS_IGNORE:
+                            info["title"] = c_title
+                            info["process_name"] = c_proc
+                            info["app_name"] = FRIENDLY_APP_NAMES.get(c_proc, c_proc.replace(".exe", "").title())
+                            try:
+                                info["rect"] = win32gui.GetWindowRect(curr)
+                            except Exception:
+                                pass
+                            break
+                    curr = win32gui.GetWindow(curr, win32con.GW_HWNDNEXT)
+
     except Exception as exc:
         logger.debug("win32 active window lookup failed: %s", exc)
+
+    # Detect Antigravity or Visual Studio Code by window title/process heuristics
+    t_lower = (info["title"] or "").lower()
+    p_lower = (info["process_name"] or "").lower()
+    if "antigravity" in t_lower or "antigravity" in p_lower:
+        info["app_name"] = "Antigravity Code Editor"
+    elif "visual studio code" in t_lower or p_lower == "code.exe":
+        info["app_name"] = "Visual Studio Code"
+    elif "cursor" in t_lower or p_lower == "cursor.exe":
+        info["app_name"] = "Cursor Code Editor"
+    elif not info["app_name"] and any(ext in t_lower for ext in (".html", ".py", ".js", ".json", ".ts", ".css")):
+        info["app_name"] = "Code Editor"
 
     # Fallback to uiautomation if available and win32 didn't find title
     if not info["title"]:
@@ -226,7 +272,18 @@ def describe_screen(lang: str = "en", speak_aloud: bool = True) -> str:
             clean_title = f"{parts[-2]} with {parts[-1]}"
 
     # Formulate a crisp 1-liner
-    if any(k in app_name.lower() for k in ("edge", "chrome", "firefox", "browser")):
+    if any(k in app_name.lower() for k in ("antigravity", "code", "cursor", "studio", "editor")):
+        doc = ""
+        if " - " in win_title:
+            doc = win_title.split(" - ")[0].strip()
+        editor_label = app_name or "Antigravity Code Editor"
+        if doc and doc not in editor_label:
+            spoken = f"You are in {editor_label} viewing {doc}."
+        elif clean_title:
+            spoken = f"You are in {editor_label} on {clean_title}."
+        else:
+            spoken = f"You are in {editor_label}."
+    elif any(k in app_name.lower() for k in ("edge", "chrome", "firefox", "browser")):
         if query and any(q_word in win_title.lower() for q_word in ("search", "google", "bing")):
             spoken = f"You are on Google Search for {query} in {app_name}."
         elif "youtube" in win_title.lower():
@@ -235,25 +292,27 @@ def describe_screen(lang: str = "en", speak_aloud: bool = True) -> str:
             spoken = f"You are on {clean_title}."
         else:
             spoken = f"You are on {app_name}."
-    elif clean_title:
+    elif clean_title and "iris orb" not in clean_title.lower():
         spoken = f"You are on {clean_title}."
-    elif app_name:
+    elif app_name and "iris orb" not in app_name.lower():
         spoken = f"You are on {app_name}."
     else:
-        spoken = "Your desktop is currently open." if lang != "hi" else "आपका डेस्कटॉप खुला हुआ है।"
+        spoken = "You are on your Desktop." if lang != "hi" else "आपका डेस्कटॉप खुला हुआ है।"
 
     # Append key screen content (search results or main highlights) for accessibility
     search_results = analysis.get("search_results", [])
     highlights = analysis.get("highlights", [])
     if search_results:
-        clean_results = [r for r in search_results[:3] if len(r) > 3]
+        clean_results = [r for r in search_results[:3] if len(r) > 3 and "iris orb" not in r.lower()]
         if clean_results:
             formatted_res = ", ".join([f"{i+1}. {r}" for i, r in enumerate(clean_results)])
-            spoken = f"{spoken} Results: {formatted_res}."
+            prefix = "Results:" if "search" in spoken.lower() else "Highlights:"
+            spoken = f"{spoken} {prefix} {formatted_res}."
     elif highlights and not any(k in app_name.lower() for k in ("terminal", "cmd", "powershell")):
-        clean_hl = [h for h in highlights[:2] if len(h) > 10 and h not in spoken]
+        clean_hl = [h for h in highlights[:2] if len(h) > 8 and "iris orb" not in h.lower() and h not in spoken]
         if clean_hl:
-            spoken = f"{spoken} Content: {'. '.join(clean_hl)}."
+            prefix = "Code:" if "editor" in spoken.lower() or "antigravity" in spoken.lower() else "Content:"
+            spoken = f"{spoken} {prefix} {'. '.join(clean_hl)}."
 
     logger.info("Screen description: %s", spoken)
     if speak_aloud:

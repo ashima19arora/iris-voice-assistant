@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "Iris — Voice Accessibility Orb",
+  "version": "1.0.0",
+  "description": "Hands-free voice accessibility, web navigation, and floating assistant orb for every webpage.",
+  "author": "Iris Team",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tts"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Iris Voice Assistant Orb",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "toggle-iris-orb": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Space",
+        "mac": "Command+Shift+Space"
+      },
+      "description": "Toggle Iris Floating Voice Orb on page"
+    }
+  }
+}

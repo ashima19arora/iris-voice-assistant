@@ -1,0 +1,22 @@
+{
+  "name": "iris-orb",
+  "version": "1.0.0",
+  "description": "Iris Persistent Desktop Floating Orb & Chat Overlay",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "keywords": [
+    "iris",
+    "voice-assistant",
+    "orb",
+    "electron",
+    "accessibility"
+  ],
+  "author": "Iris Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^44.4.3"
+  }
+}

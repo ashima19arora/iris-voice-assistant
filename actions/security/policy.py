@@ -101,6 +101,7 @@ INTENT_TIERS: Dict[str, RiskTier] = {
     "UNDO_ACTION": RiskTier.TIER_2_CAUTION,
     "SEND_MESSAGE": RiskTier.TIER_2_CAUTION,
     "TYPE_AND_SEND": RiskTier.TIER_2_CAUTION,
+    "WHATSAPP_MESSAGE": RiskTier.TIER_2_CAUTION,
     "CREATE_FILE": RiskTier.TIER_2_CAUTION,
     "COMPOUND_OPEN_AND_TYPE": RiskTier.TIER_2_CAUTION,
     "CLICK_ELEMENT": RiskTier.TIER_2_CAUTION,
@@ -113,6 +114,8 @@ INTENT_TIERS: Dict[str, RiskTier] = {
     "READ_SCREEN": RiskTier.TIER_0_SAFE,
     "DESCRIBE_SCREEN": RiskTier.TIER_0_SAFE,
     "WHAT_IS_OPEN": RiskTier.TIER_0_SAFE,
+    "LIST_FILES": RiskTier.TIER_0_SAFE,
+    "LIST_INSTALLED_APPS": RiskTier.TIER_0_SAFE,
 
     # Tier 3: Elevated
     "EXIT_ASSISTANT": RiskTier.TIER_3_ELEVATED,
@@ -230,7 +233,29 @@ def evaluate_policy(intent_name: str, params: Dict[str, Any], threat: Optional[T
             )
         sanitized["text"] = clean_text
 
-    # Find on Page & Knowledge Query
+    # WhatsApp Messaging
+    elif intent_name == "WHATSAPP_MESSAGE":
+        msg_val = sanitized.get("message", "")
+        ok, clean_msg, reason = sanitize_typed_text(msg_val)
+        if not ok:
+            return PolicyDecision(
+                allowed=False,
+                risk_tier=RiskTier.TIER_4_FORBIDDEN,
+                reason=reason,
+                sanitized_params=sanitized
+            )
+        sanitized["message"] = clean_msg
+        contact_val = sanitized.get("contact", "")
+        ok, clean_contact, reason = sanitize_typed_text(contact_val)
+        if not ok:
+            return PolicyDecision(
+                allowed=False,
+                risk_tier=RiskTier.TIER_4_FORBIDDEN,
+                reason=reason,
+                sanitized_params=sanitized
+            )
+        sanitized["contact"] = clean_contact
+
     elif intent_name in ("BROWSER_FIND_ON_PAGE", "KNOWLEDGE_QUERY"):
         query_val = sanitized.get("query", "")
         ok, clean_query, reason = sanitize_search_query(query_val)

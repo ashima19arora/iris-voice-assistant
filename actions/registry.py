@@ -28,6 +28,7 @@ from . import knowledge_actions
 from . import file_actions
 from . import screen_actions
 from . import screen_understanding
+from . import messaging_actions
 
 @dataclass
 class ActionResult:
@@ -386,13 +387,24 @@ INTENT_HANDLERS: Dict[str, Callable[[Dict[str, Any]], ActionResult]] = {
         intent="TYPE_AND_SEND",
         message=f"Typed and sent: {p.get('text', '')}"
     ),
+    "WHATSAPP_MESSAGE": lambda p: ActionResult(
+        success=messaging_actions.send_whatsapp_message(
+            contact=p.get("contact", ""),
+            message=p.get("message", ""),
+            lang=p.get("_lang", "en"),
+        ),
+        intent="WHATSAPP_MESSAGE",
+        message=f"WhatsApp message to {p.get('contact', '')}: {p.get('message', '')}"
+    ),
 
     # Hands-Free Knowledge Q&A
-    "KNOWLEDGE_QUERY": lambda p: ActionResult(
-        success=knowledge_actions.answer_knowledge_query(p.get("query", ""), lang=p.get("_lang", "en")),
-        intent="KNOWLEDGE_QUERY",
-        message=f"Answered knowledge query: {p.get('query', '')}"
-    ),
+    "KNOWLEDGE_QUERY": lambda p: (
+        lambda ans: ActionResult(
+            success=bool(ans),
+            intent="KNOWLEDGE_QUERY",
+            message=ans or ("मुझे इसका उत्तर नहीं मिला।" if p.get("_lang") == "hi" else "I could not find an answer for that.")
+        )
+    )(knowledge_actions.answer_knowledge_query(p.get("query", ""), lang=p.get("_lang", "en"), speak_answer=True)),
 
     # File & Note Creation
     "CREATE_FILE": lambda p: ActionResult(
@@ -408,21 +420,27 @@ INTENT_HANDLERS: Dict[str, Callable[[Dict[str, Any]], ActionResult]] = {
     ),
 
     # Screen Vision & Mouse Clicking (OCR-powered)
-    "CLICK_ELEMENT": lambda p: ActionResult(
-        success=screen_actions.click_element(p.get("target", ""), nth=p.get("nth", 1), lang=p.get("_lang", "en")),
-        intent="CLICK_ELEMENT",
-        message=f"Clicked on: {p.get('target', '')}"
-    ),
-    "DOUBLE_CLICK_ELEMENT": lambda p: ActionResult(
-        success=screen_actions.double_click_element(p.get("target", ""), nth=p.get("nth", 1), lang=p.get("_lang", "en")),
-        intent="DOUBLE_CLICK_ELEMENT",
-        message=f"Double-clicked on: {p.get('target', '')}"
-    ),
-    "RIGHT_CLICK_ELEMENT": lambda p: ActionResult(
-        success=screen_actions.right_click_element(p.get("target", ""), nth=p.get("nth", 1), lang=p.get("_lang", "en")),
-        intent="RIGHT_CLICK_ELEMENT",
-        message=f"Right-clicked on: {p.get('target', '')}"
-    ),
+    "CLICK_ELEMENT": lambda p: (
+        lambda s, t: ActionResult(
+            success=s,
+            intent="CLICK_ELEMENT",
+            message=f"Clicked on: {t}" if s else f"Could not find '{t}' on the screen to click."
+        )
+    )(screen_actions.click_element(p.get("target", ""), nth=p.get("nth", 1), lang=p.get("_lang", "en")), p.get("target", "")),
+    "DOUBLE_CLICK_ELEMENT": lambda p: (
+        lambda s, t: ActionResult(
+            success=s,
+            intent="DOUBLE_CLICK_ELEMENT",
+            message=f"Double-clicked on: {t}" if s else f"Could not find '{t}' on the screen to double-click."
+        )
+    )(screen_actions.double_click_element(p.get("target", ""), nth=p.get("nth", 1), lang=p.get("_lang", "en")), p.get("target", "")),
+    "RIGHT_CLICK_ELEMENT": lambda p: (
+        lambda s, t: ActionResult(
+            success=s,
+            intent="RIGHT_CLICK_ELEMENT",
+            message=f"Right-clicked on: {t}" if s else f"Could not find '{t}' on the screen to right-click."
+        )
+    )(screen_actions.right_click_element(p.get("target", ""), nth=p.get("nth", 1), lang=p.get("_lang", "en")), p.get("target", "")),
     "HOVER_ELEMENT": lambda p: ActionResult(
         success=screen_actions.hover_element(p.get("target", ""), nth=p.get("nth", 1), lang=p.get("_lang", "en")),
         intent="HOVER_ELEMENT",
@@ -446,6 +464,16 @@ INTENT_HANDLERS: Dict[str, Callable[[Dict[str, Any]], ActionResult]] = {
         success=bool(screen_understanding.describe_background_processes(lang=p.get("_lang", "en"))),
         intent="WHAT_IS_OPEN",
         message="Described open applications and background processes",
+    ),
+    "LIST_FILES": lambda p: ActionResult(
+        success=file_actions.list_folder_contents(location=p.get("location", "desktop"), lang=p.get("_lang", "en"))[0],
+        intent="LIST_FILES",
+        message=file_actions.list_folder_contents(location=p.get("location", "desktop"), lang=p.get("_lang", "en"))[1],
+    ),
+    "LIST_INSTALLED_APPS": lambda p: ActionResult(
+        success=True,
+        intent="LIST_INSTALLED_APPS",
+        message=system_actions.list_installed_apps(search_query=p.get("search_query", ""), lang=p.get("_lang", "en")),
     ),
 
     # Conversation & Life-cycle

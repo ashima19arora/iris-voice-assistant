@@ -325,8 +325,14 @@ def click_element(target_text: str, nth: int = 1, lang: str = 'en') -> bool:
         speak("I am not sure what you want me to click on. Please say the name of the link or button.", lang=lang)
         return False
 
+    is_generic_link = clean_target in (
+        "link", "result", "search result", "first link", "first result",
+        "link that is there", "first link that is there", "top link", "top result",
+        "the link", "website link", "website", "url", "page link", "the first link"
+    ) or bool(re.match(r"^(?:first|second|third|1st|2nd|3rd|top|next)?\s*(?:link|result|search\s+result|website)\b", clean_target))
+
     # Try native Windows UI Automation if target is specific
-    if clean_target not in ("link", "result", "search result", "first link", "first result"):
+    if not is_generic_link:
         uia_coords = find_element_via_uia(target_text, nth=nth)
         if uia_coords:
             x, y = uia_coords
@@ -359,7 +365,34 @@ def click_element(target_text: str, nth: int = 1, lang: str = 'en') -> bool:
         return False
 
     # Step 3: Find element
-    match = find_element_by_text(target_text, ocr_results, nth=nth)
+    match = None
+    if is_generic_link:
+        # Collect candidate search results or primary links on screen
+        candidates = []
+        for elem in ocr_results:
+            t = elem["text"].strip()
+            c = _bbox_center(elem["bbox"])
+            # Main content area: y >= 200, x < 1400, length >= 6
+            if 200 <= c[1] <= 950 and 60 <= c[0] <= 1400:
+                t_lower = t.lower()
+                if len(t) >= 6 and not any(k in t_lower for k in (
+                    "iris orb", "iris ai assistant", "people also ask", "did you mean",
+                    "search instead", "filters", "all filters", "tools", "cached"
+                )):
+                    candidates.append({
+                        "text": t,
+                        "center": c,
+                        "bbox": elem["bbox"],
+                        "match_score": 1.0,
+                    })
+        # Sort candidates top-to-bottom
+        candidates.sort(key=lambda e: (e["center"][1], e["center"][0]))
+        if candidates:
+            idx = min(max(0, nth - 1), len(candidates) - 1)
+            match = candidates[idx]
+    else:
+        match = find_element_by_text(target_text, ocr_results, nth=nth)
+
     if match is None:
         speak(f"I couldn't find {target_text} on the screen. Try saying it differently." if lang != 'hi'
               else f"स्क्रीन पर {target_text} नहीं मिला।", lang=lang)
@@ -377,7 +410,7 @@ def click_element(target_text: str, nth: int = 1, lang: str = 'en') -> bool:
     time.sleep(0.1)
     pyautogui.click(x, y)
 
-    speak(f"Clicked on {target_text}" if lang != 'hi' else f"{target_text} पर क्लिक कर दिया", lang=lang)
+    speak(f"Clicked on {matched_text}" if lang != 'hi' else f"{matched_text} पर क्लिक कर दिया", lang=lang)
     return True
 
 

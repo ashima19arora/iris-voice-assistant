@@ -88,9 +88,12 @@ INTENT_RESOURCE_MAP: Dict[str, str] = {
     "TYPE_TEXT": "Resource::\"Input\"",
     "TYPE_AND_SEND": "Resource::\"Input\"",
     "SEND_MESSAGE": "Resource::\"Input\"",
+    "WHATSAPP_MESSAGE": "Resource::\"Input\"",
 
     "OPEN_APP": "Resource::\"Applications\"",
+    "LIST_INSTALLED_APPS": "Resource::\"Applications\"",
     "CREATE_FILE": "Resource::\"FileSystem\"",
+    "LIST_FILES": "Resource::\"FileSystem\"",
     "DELETE_FILE": "Resource::\"FileSystem\"",
     "FORMAT_DISK": "Resource::\"FileSystem\"",
     "EXEC_SHELL": "Resource::\"System\"",

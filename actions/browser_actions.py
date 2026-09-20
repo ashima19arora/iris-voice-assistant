@@ -48,10 +48,9 @@ def search_web(query: str, engine: str = 'google', lang: str = 'en') -> bool:
     url = f"https://www.google.com/search?q={encoded}"
     
     notify(f"Searching web for: '{clean_query}'")
-    if lang == 'hi':
-        speak(f"{clean_query} के बारे में सर्च कर रहा हूँ", lang=lang)
-    else:
-        speak(f"Searching for {clean_query}", lang=lang)
+    from .languages import get_localized_message
+    msg = get_localized_message("SEARCH_WEB", lang=lang, query=clean_query)
+    speak(msg, lang=lang)
     webbrowser.open(url)
     return True
 

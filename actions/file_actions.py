@@ -154,3 +154,52 @@ def create_file(
         notify(f"Failed to create file: {exc}", success=False)
         speak("I could not create that file.", lang=lang)
         return False
+
+
+def list_folder_contents(location: str = "desktop", lang: str = "en") -> Tuple[bool, str]:
+    """
+    Safely lists document files in an approved directory (Desktop, Documents, Iris)
+    without path traversal.
+    """
+    clean_loc = (location or "desktop").lower().strip()
+    if clean_loc in ("docs", "doc"):
+        clean_loc = "documents"
+    if clean_loc not in ("desktop", "documents", "iris"):
+        msg = f"Location '{location}' is not an authorized folder for security reasons."
+        notify(msg, success=False)
+        speak(msg, lang=lang)
+        return False, msg
+
+    dirs = safe_directories().get(clean_loc) or []
+    if not dirs:
+        msg = f"Could not find the {clean_loc} folder on this computer."
+        notify(msg, success=False)
+        speak(msg, lang=lang)
+        return False, msg
+
+    target = dirs[0]
+    try:
+        entries = [
+            f.name for f in target.iterdir()
+            if f.is_file() and not f.name.startswith((".", "~$"))
+        ]
+        count = len(entries)
+        loc_label = "Desktop" if clean_loc == "desktop" else clean_loc.capitalize()
+        if count == 0:
+            msg = f"Your {loc_label} folder is currently empty."
+        else:
+            top_files = entries[:6]
+            files_str = ", ".join(top_files)
+            if count > 6:
+                msg = f"Your {loc_label} contains {count} files, including: {files_str}."
+            else:
+                msg = f"Your {loc_label} contains {count} files: {files_str}."
+
+        notify(msg)
+        speak(msg, lang=lang)
+        return True, msg
+    except Exception as exc:
+        msg = f"Could not list files in {clean_loc}: {exc}"
+        notify(msg, success=False)
+        speak(msg, lang=lang)
+        return False, msg

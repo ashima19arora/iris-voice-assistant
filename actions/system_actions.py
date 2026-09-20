@@ -24,6 +24,7 @@ import os
 import platform
 import subprocess
 import time
+import threading
 from datetime import datetime
 from .feedback import speak, notify
 
@@ -86,35 +87,138 @@ def play_pause_media(lang: str = 'en') -> bool:
 
 def get_default_screenshots_dir() -> str:
     """
-    Returns the user's native Windows Pictures/Screenshots directory.
-    Falls back to User's Pictures directory, avoiding project directory clutter.
+    Returns the user's native Windows Pictures/Screenshots directory where manual
+    screenshots (Win+PrtScn, Snipping Tool) are stored.
+
+    Checks in order:
+      1. Windows Registry User Shell Folders:
+         - Known Folder GUID {B7BEDE81-15A2-4688-A31C-CDA927704ECB} (Screenshots)
+         - "My Pictures" / {0DDD015D-B06C-45D5-8C4C-F59713854639} -> ...\\Screenshots
+      2. Active OneDrive Pictures\\Screenshots (OneDriveConsumer, OneDriveCommercial, OneDrive env vars)
+      3. User Profile OneDrive\\Pictures\\Screenshots
+      4. User Profile Pictures\\Screenshots
     """
-    pictures_dir = os.path.join(os.path.expanduser("~"), "Pictures")
-    screenshots_dir = os.path.join(pictures_dir, "Screenshots")
-    if os.path.exists(pictures_dir):
-        return screenshots_dir
-    return os.path.expanduser("~")
+    candidates = []
+
+    # 1. Windows Registry User Shell Folders
+    if platform.system() == "Windows":
+        try:
+            import winreg
+            with winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+            ) as key:
+                # Direct Screenshots KnownFolder GUID
+                try:
+                    val, _ = winreg.QueryValueEx(key, "{B7BEDE81-15A2-4688-A31C-CDA927704ECB}")
+                    if val:
+                        candidates.append(os.path.expandvars(val))
+                except OSError:
+                    pass
+
+                # My Pictures redirect (e.g. OneDrive Pictures or customized Pictures folder)
+                for pic_key in ["My Pictures", "{0DDD015D-B06C-45D5-8C4C-F59713854639}"]:
+                    try:
+                        val, _ = winreg.QueryValueEx(key, pic_key)
+                        if val:
+                            candidates.append(os.path.join(os.path.expandvars(val), "Screenshots"))
+                    except OSError:
+                        pass
+        except Exception:
+            pass
+
+    # 2. OneDrive environment variables
+    for env_var in ["OneDriveConsumer", "OneDriveCommercial", "OneDrive"]:
+        od = os.environ.get(env_var)
+        if od:
+            candidates.append(os.path.join(od, "Pictures", "Screenshots"))
+
+    # 3. User profile paths
+    user_home = os.path.expanduser("~")
+    candidates.append(os.path.join(user_home, "OneDrive", "Pictures", "Screenshots"))
+    candidates.append(os.path.join(user_home, "Pictures", "Screenshots"))
+
+    # Return the first candidate that already exists on disk
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+
+    # If none exist yet, create the most appropriate one
+    for path in candidates:
+        parent = os.path.dirname(path)
+        if os.path.exists(parent):
+            os.makedirs(path, exist_ok=True)
+            return path
+
+    default_path = os.path.join(user_home, "Pictures", "Screenshots")
+    os.makedirs(default_path, exist_ok=True)
+    return default_path
 
 def take_screenshot(save_dir: str = None, lang: str = 'en') -> str:
     """
-    Captures the desktop screen and saves it as a PNG image in the user's Pictures/Screenshots folder.
+    Captures the whole desktop page/screen and saves it into the exact folder
+    where the user's manual Windows screenshots are stored.
     """
     target_dir = save_dir or get_default_screenshots_dir()
     os.makedirs(target_dir, exist_ok=True)
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = os.path.join(target_dir, f"screenshot_{timestamp}.png")
+
+    # Standard Windows Snipping Tool naming format: Screenshot YYYY-MM-DD HHMMSS.png
+    timestamp = datetime.now().strftime('%Y-%m-%d %H%M%S')
+    filename = os.path.join(target_dir, f"Screenshot {timestamp}.png")
 
     notify(f"Capturing screen to {filename}")
-    speak("स्क्रीनशॉट ले लिया गया है" if lang == 'hi' else "Taking screenshot", lang=lang)
-    if pyautogui is None:
-        speak("Screenshots are not available on this device.", lang=lang)
+    speak("स्क्रीनशॉट ले रही हूँ" if lang == 'hi' else "Taking a screenshot of the whole screen...", lang=lang)
+
+    screenshot = None
+    if pyautogui is not None:
+        try:
+            screenshot = pyautogui.screenshot()
+        except Exception:
+            screenshot = None
+
+    if screenshot is None:
+        try:
+            from PIL import ImageGrab
+            screenshot = ImageGrab.grab()
+        except Exception:
+            screenshot = None
+
+    if screenshot is None:
+        speak(
+            "स्क्रीनशॉट नहीं लिया जा सका।"
+            if lang == 'hi'
+            else "I could not capture the screen at this moment.",
+            lang=lang
+        )
         return ""
+
     try:
-        screenshot = pyautogui.screenshot()
         screenshot.save(filename)
+        notify(f"Screenshot saved: {os.path.basename(filename)}", success=True)
+        speak(
+            "स्क्रीनशॉट आपके स्क्रीनशॉट फ़ोल्डर में सुरक्षित हो गया है।"
+            if lang == 'hi'
+            else "Screenshot saved to your Screenshots folder.",
+            lang=lang
+        )
+
+        # Optional cloud backup to Amazon S3
+        try:
+            from .cloud_storage import upload_file_to_s3, get_s3_client
+            if get_s3_client():
+                threading.Thread(
+                    target=upload_file_to_s3,
+                    args=(filename,),
+                    kwargs={"lang": lang},
+                    daemon=True
+                ).start()
+        except Exception:
+            pass
+
         return filename
-    except Exception:
-        speak("I could not take a screenshot.", lang=lang)
+    except Exception as exc:
+        notify(f"Screenshot save failed: {exc}", success=False)
+        speak("I could not save the screenshot.", lang=lang)
         return ""
 
 def open_app(app_name: str, lang: str = 'en') -> bool:
@@ -259,6 +363,13 @@ def type_text(text_to_type: str, press_enter: bool = False, lang: str = 'en') ->
     if not clean_text:
         return False
 
+    # Transfer focus from Iris overlay to the target window
+    try:
+        from .messaging_actions import transfer_focus_to_target_window
+        transfer_focus_to_target_window()
+    except Exception:
+        pass
+
     notify(f"Typing: '{clean_text}'")
     speak("Typing text")
     if pyautogui is None:
@@ -282,3 +393,33 @@ def type_text(text_to_type: str, press_enter: bool = False, lang: str = 'en') ->
         except Exception:
             speak("I could not type that text.", lang=lang)
             return False
+
+
+def list_installed_apps(search_query: str = "", lang: str = "en") -> str:
+    """
+    Reports installed and approved applications available on Windows.
+    If search_query is provided, checks if that specific app is installed and available.
+    """
+    from .config import APPROVED_APPLICATIONS
+    # Unique canonical display names
+    unique_apps = sorted(list(set(
+        app for app in APPROVED_APPLICATIONS.keys()
+        if not app.startswith("the ") and len(app) > 2 and app not in ("calc", "setting", "docs")
+    )))
+
+    q = (search_query or "").lower().strip()
+    if q:
+        matches = [a for a in unique_apps if q in a.lower()]
+        if matches:
+            app_name = matches[0].title()
+            msg = f"Yes, {app_name} is installed and ready to open."
+        else:
+            msg = f"I could not find an approved application matching '{search_query}'."
+    else:
+        sample = [a.title() for a in unique_apps[:8]]
+        count = len(unique_apps)
+        msg = f"You have {count} applications available, including: {', '.join(sample)}, and more."
+
+    notify(msg)
+    speak(msg, lang=lang)
+    return msg
