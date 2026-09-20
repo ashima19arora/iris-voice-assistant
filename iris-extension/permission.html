@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iris Voice Assistant — Microphone Permission</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --cyan: #38bdf8;
+      --green: #10b981;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.15);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(16px);
+    }
+    .orb-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #38bdf8 0%, #2563eb 70%, #0f172a 100%);
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      animation: pulse 2.5s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(56, 189, 248, 0.6); }
+      50% { transform: scale(1.08); box-shadow: 0 0 40px rgba(56, 189, 248, 0.9); }
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    p {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .btn {
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      color: #fff;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
+    }
+    .status {
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .status.success { color: var(--green); }
+    .status.error { color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="orb-icon">
+      <svg viewBox="0 0 24 24" width="36" height="36" fill="white">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+      </svg>
+    </div>
+    <h1>Enable Voice Recognition</h1>
+    <p>Iris needs microphone access to listen to your voice commands for hands-free web navigation and accessibility.</p>
+    <button class="btn" id="btnRequest">Grant Microphone Access</button>
+    <div class="status" id="statusMsg"></div>
+  </div>
+
+  <script>
+    const btn = document.getElementById('btnRequest');
+    const statusMsg = document.getElementById('statusMsg');
+
+    async function requestMic() {
+      statusMsg.className = 'status';
+      statusMsg.textContent = 'Requesting access... Please click "Allow" in the browser prompt.';
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Stop stream immediately after permission is granted
+        stream.getTracks().forEach(track => track.stop());
+        statusMsg.className = 'status success';
+        statusMsg.textContent = '✓ Microphone access granted! You can now close this tab and use Iris Orb.';
+        btn.style.display = 'none';
+        setTimeout(() => {
+          window.close();
+        }, 2500);
+      } catch (err) {
+        statusMsg.className = 'status error';
+        statusMsg.textContent = 'Microphone permission was blocked or dismissed. Please click the camera/mic icon in the browser address bar and select "Always allow".';
+      }
+    }
+
+    btn.addEventListener('click', requestMic);
+    // Automatically trigger on page load
+    window.addEventListener('DOMContentLoaded', requestMic);
+  </script>
+</body>
+</html>

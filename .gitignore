@@ -11,7 +11,7 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-downloads/
+/downloads/
 eggs/
 .eggs/
 lib/
@@ -150,8 +150,10 @@ activemq-data/
 # Node
 node_modules/
 
-# Environments
+# Environments & Secrets
 .env
+.env.*
+*.env
 .envrc
 .venv
 env/
@@ -159,6 +161,18 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+secrets/
+*.secret
+credentials.json
+client_secret*.json
+aws-credentials*
+*.pem
+*.key
+*.pfx
+*.pkcs12
+*.cert
+*.crt
+token.json
 
 # Spyder project settings
 .spyderproject
@@ -223,5 +237,53 @@ __marimo__/
 #skills
 iris-website/.agents/
 iris-website/claude-skill-awwwards/
+.agents/
+.gemini/
 
-.env
+# ============================================================
+# LARGE BINARIES, PACKAGES & DISTRIBUTION BUILDS
+# (GitHub rejects pushes with files > 100 MB)
+# ============================================================
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+*.pak
+*.dat
+*.msi
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Electron runtime package directories
+Orb-Package/
+Orb/dist/
+Orb/out/
+Orb/build/
+
+# Downloads & local release distribution artifacts
+/downloads/
+iris-website/downloads/*.exe
+iris-website/downloads/Iris-Orb-Windows-v1.0.0.zip
+!iris-website/downloads/iris-browser-extension-v1.0.0.zip
+
+# IDE, OS & Editor caches
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+

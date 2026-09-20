@@ -98,17 +98,35 @@ def fetch_duckduckgo_answer(query: str) -> str:
         pass
     return ""
 
-def answer_knowledge_query(query: str, lang: str = 'en', speak_answer: bool = True) -> Any:
+def answer_knowledge_query(query: str, lang: str = 'en', speak_answer: bool = True) -> str:
     """
-    Answers a factual or conversational query verbally on the spot.
+    Answers a factual or conversational query verbally on the spot with a concise one-liner.
     Uses fast OpenRouter AI models first, with Wikipedia and DuckDuckGo fallbacks.
     Never opens a browser tab unless the user explicitly requested a web search.
+    Returns the clean answer text string.
     """
     clean_query = query.strip()
     if not clean_query:
-        return "" if not speak_answer else False
+        return ""
 
     notify(f"Looking up answer for: '{clean_query}'")
+
+    # Fast check: Simple math expressions (e.g. "what is 5 + 5", "10 * 20", "50 divided by 2")
+    math_match = re.search(r'^(?:what\s+is\s+|calculate\s+|kitna\s+hota\s+hai\s+)?([0-9\.\s\+\-\*\/\(\)]+?)(?:\s+kitna\s+hota\s+hai|\s+kya\s+hoga|\s*\?)?$', clean_query, flags=re.IGNORECASE)
+    if math_match:
+        expr = math_match.group(1).strip()
+        # Only evaluate if contains at least one operator and only valid math characters
+        if any(op in expr for op in ('+', '-', '*', '/')) and re.match(r'^[0-9\.\s\+\-\*\/\(\)]+$', expr):
+            try:
+                # Safe eval of pure numeric expressions
+                result = eval(expr, {"__builtins__": None}, {})
+                ans = f"{expr} is {result}." if lang == 'en' else f"{expr} बराबर {result} होता है।"
+                notify(f"Math Answer: {ans}")
+                if speak_answer:
+                    speak(ans, lang=lang)
+                return ans
+            except Exception:
+                pass
 
     summary = ""
     # 1. Try Amazon Bedrock first (Claude 3.5 / Nova on AWS)
@@ -141,8 +159,9 @@ def answer_knowledge_query(query: str, lang: str = 'en', speak_answer: bool = Tr
     if summary:
         notify(f"Answer: {summary}")
         if speak_answer:
-            speak(summary, lang=lang)
-        return summary if not speak_answer else True
+            ans_lang = 'hi' if re.search(r'[\u0900-\u097F]', summary) else lang
+            speak(summary, lang=ans_lang)
+        return summary
     else:
         # Professional fallback: Inform user via voice without opening unprompted browser tabs
         notify("No instant answer found.")
@@ -153,4 +172,4 @@ def answer_knowledge_query(query: str, lang: str = 'en', speak_answer: bool = Tr
         )
         if speak_answer:
             speak(msg, lang=lang)
-        return "" if not speak_answer else False
+        return msg

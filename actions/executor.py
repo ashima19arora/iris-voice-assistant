@@ -97,17 +97,13 @@ def _reasoning_path(
             logger.info("tool step ok: %s", step)
         else:
             logger.error("tool step failed: %s", step)
-    summary = plan.get("spoken") or "Done."
+    spoken_text = plan.get("spoken") or "Done."
     if lines:
-        summary = summary + " " + "; ".join(lines)
         notify("; ".join(lines), success=plan.get("ok", True))
-    already_spoke = any(
-        step.get("tool") == "knowledge_answer" and step.get("ok")
-        for step in (plan.get("steps") or [])
-    )
-    if not already_spoke:
-        speak(plan.get("spoken") or "Done.", lang=lang)
-    return ActionResult(bool(plan.get("ok")), intent.name, summary)
+    # Always vocalize the synthesized answer via Polly
+    if spoken_text:
+        speak(spoken_text, lang=lang)
+    return ActionResult(bool(plan.get("ok")), intent.name, spoken_text)
 
 
 def execute_command(

@@ -24,16 +24,16 @@ from typing import Dict, Any, Tuple
 # "the" must NOT count, or English commands are misclassified as Hindi.
 HINDI_HINGLISH_WORDS = {
     'kya', 'kyun', 'kaun', 'kaise', 'kahan', 'kab', 'kitna', 'kitni', 'kitne',
-    'kisko', 'kiska', 'kiski', 'kiske',
+    'kisko', 'kiska', 'kiski', 'kiske', 'hai', 'hain', 'hoon', 'hun', 'hoga', 'hogi', 'honge',
     'mujhe', 'mera', 'meri', 'mere', 'humein', 'hamara', 'hamari',
-    'aap', 'aapko', 'aapka', 'aapki', 'aapke', 'tumhe', 'tumhara', 'tumhari',
-    'mein', 'parantu', 'magar', 'liye', 'baare',
-    'hain', 'hoon', 'hun', 'hoga', 'hogi', 'honge',
+    'aap', 'aapko', 'aapka', 'aapki', 'aapke', 'tum', 'tumhe', 'tumhara', 'tumhari',
+    'ki', 'ka', 'ke', 'ko', 'se', 'mein', 'me', 'pe', 'par', 'parantu', 'magar', 'liye', 'baare',
     'karo', 'karna', 'kariye', 'kijiye', 'karta', 'karti', 'karte',
     'kholo', 'khol', 'kholna', 'chalao', 'chala', 'chalaana',
-    'batao', 'bata', 'bataiye', 'dikhao', 'dikhana',
-    'dhoondo', 'khojo', 'badhao', 'dheeme', 'hatao',
+    'batao', 'bata', 'bataiye', 'dikhao', 'dikhana', 'rajdhani',
+    'dhoondo', 'khojo', 'badhao', 'dheeme', 'hatao', 'suno',
     'samay', 'taareekh', 'aawaz', 'awaz', 'madad', 'sahayata', 'namaste', 'namaskar', 'alvida',
+    'nahi', 'nahin', 'the', 'thi', 'tha',
 }
 
 ENGLISH_STRUCTURE_WORDS = {
@@ -85,8 +85,8 @@ def get_localized_message(intent: str, lang: str, **kwargs) -> str:
 
     if lang == 'hi':
         messages = {
-            "GREETING": "नमस्ते! मैं आईरिस हूँ, आपका डिजिटल वॉइस साथी। मैं वेब सर्च कर सकता हूँ, ऐप्स और विंडोज़ कंट्रोल कर सकता हूँ।",
-            "SEARCH_WEB": f"{query} के बारे में सर्च कर रहा हूँ",
+            "GREETING": "नमस्ते! मैं आईरिस हूँ। मैं बिल्कुल ठीक हूँ। हाँ, मैं पूरी तरह से हिंदी बोल और समझ सकता हूँ। आप मुझसे कोई भी काम कह सकते हैं।",
+            "SEARCH_WEB": f"{query} के लिए वेब पर खोज रहा हूँ।",
             "OPEN_WEBSITE": f"{target.capitalize()} खोल रहा हूँ",
             "OPEN_APP": f"{app_name.capitalize()} ओपन कर रहा हूँ",
             "BROWSER_NEW_TAB": "नया टैब खोल दिया है",
@@ -114,8 +114,8 @@ def get_localized_message(intent: str, lang: str, **kwargs) -> str:
 
     # Default English
     messages = {
-        "GREETING": "Hello! I am Iris, your voice assistant. I am active and ready for your command.",
-        "SEARCH_WEB": f"Searching for {query}",
+        "GREETING": "Hello! I am Iris, your voice assistant. Yes, I can speak both English and Hindi! How can I help you today?",
+        "SEARCH_WEB": f"Searching the web for {query}.",
         "OPEN_WEBSITE": f"Opening {target.capitalize()}",
         "OPEN_APP": f"Opening {app_name.capitalize()}",
         "BROWSER_NEW_TAB": "Opening new tab",

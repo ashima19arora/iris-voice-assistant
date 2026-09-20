@@ -14,6 +14,7 @@ Iris is a voice-first assistant built for people the digital world leaves out â€
 - [Architecture](#architecture)
 - [Features & Principles](#features--principles)
 - [Quick Start & Setup](#quick-start--setup)
+- [How to use (extension + local)](HOW_TO_USE.md)
 - [Voice Commands (Examples)](#voice-commands-examples)
 - [How Intent Matching Works](#how-intent-matching-works)
 - [Extending Iris](#extending-iris-add-a-new-voice-command)
@@ -87,6 +88,8 @@ Always-on in parallel: stop-word detection and a manual mic-mute toggle, indepen
 ---
 
 ## Quick Start & Setup
+
+**End-user guide (Chrome extension + Desktop Orb):** see **[HOW_TO_USE.md](HOW_TO_USE.md)**.
 
 ### Requirements
 

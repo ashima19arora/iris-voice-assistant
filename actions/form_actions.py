@@ -25,10 +25,20 @@ from .feedback import speak, notify
 
 pyautogui.FAILSAFE = False
 
+
+def _ensure_target_focus():
+    """Transfer focus from Iris overlay to the target window before keyboard actions."""
+    try:
+        from .messaging_actions import transfer_focus_to_target_window
+        transfer_focus_to_target_window()
+    except Exception:
+        pass
+
 def press_tab(steps: int = 1, lang: str = 'en') -> bool:
     """
     Navigates forward through form fields using Tab.
     """
+    _ensure_target_focus()
     notify(f"Moving to next field (Tab x{steps})")
     speak(f"अगला फील्ड" if lang == 'hi' else f"Next field", lang=lang)
     for _ in range(steps):
@@ -40,6 +50,7 @@ def previous_field(steps: int = 1, lang: str = 'en') -> bool:
     """
     Navigates backward through form fields using Shift+Tab.
     """
+    _ensure_target_focus()
     notify(f"Moving to previous field (Shift+Tab x{steps})")
     speak(f"पिछला फील्ड" if lang == 'hi' else f"Previous field", lang=lang)
     for _ in range(steps):
@@ -51,6 +62,7 @@ def press_enter(lang: str = 'en') -> bool:
     """
     Submits a form or triggers the focused button using Enter.
     """
+    _ensure_target_focus()
     notify("Submitting form / Pressing Enter")
     speak("फॉर्म सबमिट कर रहा हूँ" if lang == 'hi' else "Submitting form", lang=lang)
     pyautogui.press('enter')
@@ -60,6 +72,7 @@ def press_space(lang: str = 'en') -> bool:
     """
     Toggles a checkbox or selects an option using Space.
     """
+    _ensure_target_focus()
     notify("Toggling checkbox / Space")
     speak("चेकबॉक्स सेलेक्ट कर रहा हूँ" if lang == 'hi' else "Selecting option", lang=lang)
     pyautogui.press('space')
@@ -69,6 +82,7 @@ def select_all(lang: str = 'en') -> bool:
     """
     Selects all text in the active input field or document using Ctrl+A.
     """
+    _ensure_target_focus()
     notify("Selecting all text (Ctrl+A)")
     speak("सभी टेक्स्ट सेलेक्ट कर लिया" if lang == 'hi' else "Selected all", lang=lang)
     pyautogui.hotkey('ctrl', 'a')
@@ -78,6 +92,7 @@ def clear_field(lang: str = 'en') -> bool:
     """
     Clears the active input field by selecting all and deleting.
     """
+    _ensure_target_focus()
     notify("Clearing field")
     speak("फील्ड खाली कर दी है" if lang == 'hi' else "Cleared field", lang=lang)
     pyautogui.hotkey('ctrl', 'a')
@@ -89,6 +104,7 @@ def copy_text(lang: str = 'en') -> bool:
     """
     Copies selected text to the clipboard using Ctrl+C.
     """
+    _ensure_target_focus()
     notify("Copying to clipboard (Ctrl+C)")
     speak("कॉपी कर लिया" if lang == 'hi' else "Copied", lang=lang)
     pyautogui.hotkey('ctrl', 'c')
@@ -98,6 +114,7 @@ def paste_text(lang: str = 'en') -> bool:
     """
     Pastes text from the clipboard into the active field using Ctrl+V.
     """
+    _ensure_target_focus()
     notify("Pasting from clipboard (Ctrl+V)")
     speak("पेस्ट कर दिया" if lang == 'hi' else "Pasted", lang=lang)
     pyautogui.hotkey('ctrl', 'v')
@@ -107,6 +124,7 @@ def undo_action(lang: str = 'en') -> bool:
     """
     Undoes the last text edit or action using Ctrl+Z.
     """
+    _ensure_target_focus()
     notify("Undoing last action (Ctrl+Z)")
     speak("अनडू कर दिया" if lang == 'hi' else "Undone", lang=lang)
     pyautogui.hotkey('ctrl', 'z')
@@ -120,6 +138,7 @@ def fill_field(text: str, press_tab_after: bool = False, press_enter_after: bool
     if not clean_text:
         return False
 
+    _ensure_target_focus()
     notify(f"Filling field with: '{clean_text}'")
     try:
         import pyperclip

@@ -98,22 +98,29 @@ permit(
         Action::"UNDO_ACTION",
         Action::"TYPE_TEXT",
         Action::"TYPE_AND_SEND",
-        Action::"SEND_MESSAGE"
+        Action::"SEND_MESSAGE",
+        Action::"WHATSAPP_MESSAGE"
     ],
     resource == Resource::"Input"
 );
 
-// Permit launching approved applications
+// Permit launching approved applications and listing installed apps
 permit(
     principal == User::"VoiceUser",
-    action == Action::"OPEN_APP",
+    action in [
+        Action::"OPEN_APP",
+        Action::"LIST_INSTALLED_APPS"
+    ],
     resource == Resource::"Applications"
 );
 
-// Permit safe file creation inside approved user directories (Desktop/Documents)
+// Permit safe file creation and folder document listing inside approved user directories (Desktop/Documents)
 permit(
     principal == User::"VoiceUser",
-    action == Action::"CREATE_FILE",
+    action in [
+        Action::"CREATE_FILE",
+        Action::"LIST_FILES"
+    ],
     resource == Resource::"FileSystem"
 ) when {
     context.is_safe_path == true

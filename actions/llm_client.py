@@ -167,6 +167,21 @@ def ask_iris_llm(prompt: str, lang: str = 'en', timeout: float = TIMEOUT_SEC) ->
             "Speak naturally as if talking out loud."
         )
 
+    # 1. Try Amazon Bedrock first if AWS credentials exist
+    try:
+        from .bedrock_client import query_bedrock
+        bedrock_ans, _ = query_bedrock(clean_prompt, system_prompt=system_content)
+        if bedrock_ans:
+            spoken_answer = clean_for_speech_output(bedrock_ans)
+            if spoken_answer:
+                with _cache_lock:
+                    if len(_qa_cache) >= MAX_CACHE_ITEMS:
+                        _qa_cache.pop(next(iter(_qa_cache)))
+                    _qa_cache[cache_key] = spoken_answer
+                return spoken_answer
+    except Exception:
+        pass
+
     messages = [
         {"role": "system", "content": system_content},
         {"role": "user", "content": clean_prompt}
@@ -336,7 +351,18 @@ def ask_screen_context_llm(user_question: str, screen_ctx: Dict[str, Any], lang:
             except Exception:
                 pass
 
-    # 2. Text-Based Context Reasoning with Primary Model
+    # 2. Attempt Amazon Bedrock Text-Based Context Reasoning
+    try:
+        from .bedrock_client import query_bedrock
+        bedrock_ans, _ = query_bedrock(user_content_text, system_prompt=system_content)
+        if bedrock_ans:
+            clean_b = clean_for_speech_output(bedrock_ans)
+            if clean_b:
+                return clean_b
+    except Exception:
+        pass
+
+    # 3. Text-Based Context Reasoning with Primary Model
     for model_name in [PRIMARY_MODEL] + FALLBACK_MODELS:
         for api_key in candidate_keys:
             try:

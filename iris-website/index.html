@@ -871,12 +871,366 @@
       fill: currentColor;
     }
 
+    /* ============================================================
+       DEMO & DOWNLOAD SUITE STYLING
+       ============================================================ */
+    .demo-header-section {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .demo-badge-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent-blue);
+      margin-bottom: 1rem;
+      letter-spacing: 1px;
+    }
+    .demo-live-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: miniPulse 1.8s infinite;
+    }
+    .demo-showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+    @media (max-width: 1024px) {
+      .demo-showcase-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .demo-download-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .demo-download-card:hover {
+      border-color: rgba(56, 189, 248, 0.5);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.15);
+    }
+    .demo-card-icon-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 0.75rem;
+    }
+    .demo-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-blue);
+    }
+    .demo-card-title {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      color: #fff;
+      font-weight: 700;
+    }
+    .demo-card-subhead {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+    .demo-spec-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .demo-spec-item {
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.4;
+    }
+    .demo-spec-item svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: #38bdf8;
+    }
+    .demo-actions-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: auto;
+    }
+    .demo-btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff !important;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+    }
+    .demo-btn-primary:hover {
+      background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+      box-shadow: 0 6px 22px rgba(2, 132, 199, 0.55);
+      transform: translateY(-1px);
+    }
+    .demo-btn-outline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-main) !important;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .demo-btn-outline:hover {
+      background: rgba(56, 189, 248, 0.08);
+      border-color: var(--accent-blue);
+      color: #fff !important;
+    }
+    .ext-install-guide {
+      margin-top: 1rem;
+      background: #090d16;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      display: none;
+    }
+    .ext-install-guide.open {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    .ext-install-step {
+      margin-bottom: 0.5rem;
+      color: #cbd5e1;
+    }
+    .ext-install-step code {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--accent-blue);
+      font-family: var(--font-mono);
+    }
+
+    /* INTERACTIVE WEB ORB SIMULATOR */
+    .simulator-container {
+      background: linear-gradient(180deg, #090d16 0%, #05070b 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      margin-top: 1rem;
+      position: relative;
+    }
+    .sim-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 1rem;
+    }
+    .sim-title {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sim-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+    .sim-orb-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .web-interactive-orb {
+      width: 140px;
+      height: 140px;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .web-interactive-orb:hover {
+      transform: scale(1.08);
+    }
+    .web-orb-glow-outer {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.4) 0%, rgba(99, 102, 241, 0.15) 60%, transparent 100%);
+      animation: orbGlowRotate 6s infinite linear;
+    }
+    .web-orb-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 1px dashed rgba(56, 189, 248, 0.5);
+      animation: orbRingRotate 10s infinite linear reverse;
+    }
+    @keyframes orbRingRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .web-orb-core-sphere {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #38bdf8 0%, #1d4ed8 50%, #030712 100%);
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.6), inset 0 2px 10px rgba(255, 255, 255, 0.6);
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: orbPulse 3s infinite ease-in-out;
+    }
+    @keyframes orbPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(56, 189, 248, 0.5); }
+      50% { transform: scale(1.04); box-shadow: 0 0 50px rgba(56, 189, 248, 0.85); }
+    }
+    .web-orb-pulse-label {
+      margin-top: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--accent-blue);
+      letter-spacing: 0.5px;
+    }
+    .sim-console-stage {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .sim-chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .sim-chip-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sim-chip-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent-blue);
+      color: #fff;
+    }
+    .sim-terminal-screen {
+      background: #030508;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 1.2rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
+    .term-line-time { color: #64748b; }
+    .term-line-intent { color: #38bdf8; font-weight: 600; }
+    .term-line-cedar { color: #10b981; }
+    .term-line-speech { color: #facc15; font-style: italic; }
+    .sim-input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .sim-text-input {
+      flex: 1;
+      background: #0b0f19;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .sim-text-input:focus {
+      border-color: var(--accent-blue);
+    }
+    .sim-send-btn {
+      background: var(--accent-blue);
+      color: #030712;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .sim-send-btn:hover {
+      opacity: 0.9;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 850px) {
       .footer-row { grid-template-columns: 1fr; gap: 2rem; text-align: left !important; }
       .footer-col { align-items: flex-start !important; }
       .hero-title { font-size: 2.5rem; }
       .braille-scroll-tracker { display: none; }
+      .demo-showcase-grid { grid-template-columns: 1fr; }
+      .sim-layout { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1300,21 +1654,215 @@
     </main>
   </div>
 
-  <!-- VIEW 5: DEMO PAGE -->
+  <!-- VIEW 5: DEMO PAGE & DOWNLOADS -->
   <div id="view-demo" class="view-content">
     <main class="container">
-      <div style="background: var(--bg-card); border: 1px dashed var(--accent-blue); border-radius: 8px; padding: 3.5rem 2rem; text-align: center; max-width: 650px; margin: 2rem auto;">
-        <div style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent-blue);">⚙️</div>
-        <h3 style="font-family: var(--font-mono); font-size: 1.3rem; margin-bottom: 0.75rem; color: var(--text-main);">
-          [ Demo coming soon — prototype in progress ]
-        </h3>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto;">
-          The first working prototype of Iris is currently being assembled. Follow updates directly on GitHub or check back soon!
+      <!-- DEMO HEADER -->
+      <div class="demo-header-section">
+        <div class="demo-badge-tag">
+          <span class="demo-live-indicator"></span>
+          OFFICIAL RELEASE v1.0 • WINDOWS + BROWSER
+        </div>
+        <h2 style="font-family: var(--font-mono); font-size: 2.2rem; color: #fff; margin-bottom: 0.5rem; font-weight: 800;">
+          Downloads & Interactive Live Orb
+        </h2>
+        <p style="color: var(--text-muted); font-size: 1rem; max-width: 620px; margin: 0 auto;">
+          Deploy the native desktop floating orb for complete Windows control, or install the lightweight browser extension for hands-free web navigation.
         </p>
-        <a href="https://github.com/ashima19arora/iris-voice-assistant" target="_blank" rel="noopener" class="btn-bracket">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          view repository
-        </a>
+      </div>
+
+      <!-- 3-OPTION DEPLOYMENT & DOWNLOAD SHOWCASE -->
+      <div class="demo-showcase-grid">
+        <!-- CARD 1: OPTION 1 — DESKTOP ORB (.EXE DIRECT DOWNLOAD) -->
+        <div class="demo-download-card">
+          <div>
+            <div class="demo-card-icon-title">
+              <div class="demo-icon-box">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+              </div>
+              <div>
+                <div class="demo-card-title">Option 1: Windows App (.EXE)</div>
+                <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-blue);">Direct 1-Click Download • Win 10/11</div>
+              </div>
+            </div>
+            <p class="demo-card-subhead">
+              Zero terminal/black screens. Launches directly into the transparent floating desktop Orb with microphone pulse visualizer, offline speech engine, and full OS control.
+            </p>
+            <ul class="demo-spec-list">
+              <li class="demo-spec-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span><strong>Global Hotkey:</strong> Toggle hide/show anytime with <kbd style="background:rgba(255,255,255,0.12); padding:2px 6px; border-radius:4px; font-family:var(--font-mono); color:#38bdf8;">Ctrl + Shift + Space</kbd>.</span>
+              </li>
+              <li class="demo-spec-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span><strong>Pure GUI Floating Orb:</strong> 1-click self-contained setup extracts and launches without terminal windows.</span>
+              </li>
+              <li class="demo-spec-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span><strong>Full OS Control:</strong> Volume adjustment, full-page screenshots to Pictures/Screenshots, app launches.</span>
+              </li>
+            </ul>
+          </div>
+          <div class="demo-actions-row">
+            <a href="downloads/Iris-Orb-Setup.exe" id="dlSetupExe" download="Iris-Orb-Setup.exe" class="demo-btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+              Download Iris-Orb-Setup.exe
+            </a>
+            <a href="downloads/Iris-Orb-Windows-v1.0.0.zip" id="dlZipBundle" download="Iris-Orb-Windows-v1.0.0.zip" class="demo-btn-outline">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14v-4H8l4-4 4 4h-3v4h-2z"/></svg>
+              Download Portable (.ZIP) Bundle
+            </a>
+          </div>
+        </div>
+
+        <!-- CARD 2: OPTION 2 — BROWSER EXTENSION (.ZIP MANUAL INSTALL) -->
+        <div class="demo-download-card">
+          <div>
+            <div class="demo-card-icon-title">
+              <div class="demo-icon-box" style="background: rgba(129, 140, 248, 0.1); border-color: rgba(129, 140, 248, 0.3); color: #818cf8;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+              </div>
+              <div>
+                <div class="demo-card-title">Option 2: Browser Extension</div>
+                <div style="font-family: var(--font-mono); font-size: 0.75rem; color: #818cf8;">Download .ZIP & Manual Add</div>
+              </div>
+            </div>
+            <p class="demo-card-subhead">
+              Download the ZIP, extract, and load into Chrome/Edge Developer mode. Injects a persistent floating voice orb directly into any active webpage.
+            </p>
+            <ul class="demo-spec-list">
+              <li class="demo-spec-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span><strong>In-Page Hotkey:</strong> Toggle orb anytime with <kbd style="background:rgba(255,255,255,0.12); padding:2px 6px; border-radius:4px; font-family:var(--font-mono); color:#818cf8;">Ctrl + Shift + Space</kbd>.</span>
+              </li>
+              <li class="demo-spec-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span><strong>Voice Web Actions:</strong> "Scroll down", "Read page", "Take screenshot", "Highlight links".</span>
+              </li>
+              <li class="demo-spec-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span><strong>Zero Permissions Leak:</strong> Runs locally in Chrome, Edge, and Brave.</span>
+              </li>
+            </ul>
+          </div>
+          <div class="demo-actions-row">
+            <a href="downloads/iris-browser-extension-v1.0.0.zip" download="iris-browser-extension-v1.0.0.zip" class="demo-btn-primary" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+              Download Extension (.ZIP)
+            </a>
+            <button type="button" onclick="toggleExtensionGuide()" class="demo-btn-outline">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+              Manual 3-Step Add Guide
+            </button>
+            <div id="extInstallGuide" class="ext-install-guide">
+              <div class="ext-install-step"><strong>1.</strong> Extract <code>iris-browser-extension-v1.0.0.zip</code>.</div>
+              <div class="ext-install-step"><strong>2.</strong> Navigate to <code>chrome://extensions</code> & toggle <strong>Developer mode</strong> (top right).</div>
+              <div class="ext-install-step"><strong>3.</strong> Click <strong>Load unpacked</strong> and select the extracted folder. Press <kbd>Ctrl+Shift+Space</kbd> anywhere!</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3: OPTION 3 — DEVELOPER & JUDGE RUN (npm run orb) -->
+        <div class="demo-download-card">
+          <div>
+            <div class="demo-card-icon-title">
+              <div class="demo-icon-box" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #10b981;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5c-.55 0-1-.45-1-1V7c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1zm-8-3l4-4-4-4v8z"/></svg>
+              </div>
+              <div>
+                <div class="demo-card-title">Option 3: npm run orb</div>
+                <div style="font-family: var(--font-mono); font-size: 0.75rem; color: #10b981;">Developer & Hackathon Judge Mode</div>
+              </div>
+            </div>
+            <p class="demo-card-subhead">
+              Clone repository and launch the live development orb linked to local Python speech pipeline with hot-reload.
+            </p>
+            <!-- CODE BOX -->
+            <div style="background: #030712; border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.6; color: #a7f3d0; position: relative;">
+              <div style="color: #64748b; font-size: 0.7rem; margin-bottom: 4px;"># Clone & Run Desktop Orb</div>
+              <div>git clone https://github.com/ashima19arora/iris-voice-assistant.git</div>
+              <div>cd iris-voice-assistant</div>
+              <div>npm install</div>
+              <div style="color: #38bdf8; font-weight: 700;">npm run orb</div>
+            </div>
+            <ul class="demo-spec-list">
+              <li class="demo-spec-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color: #10b981;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span><strong>Instant Live Inspection:</strong> Live DevTools & Python console logging.</span>
+              </li>
+              <li class="demo-spec-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color: #10b981;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span><strong>Global Hotkey:</strong> <kbd style="background:rgba(255,255,255,0.12); padding:2px 6px; border-radius:4px; font-family:var(--font-mono); color:#10b981;">Ctrl + Shift + Space</kbd> active in live mode.</span>
+              </li>
+            </ul>
+          </div>
+          <div class="demo-actions-row">
+            <button type="button" id="copyNpmOrbBtn" onclick="copyTextToClipboard('git clone https://github.com/ashima19arora/iris-voice-assistant.git\ncd iris-voice-assistant\nnpm install\nnpm run orb', 'copyNpmOrbBtn')" class="demo-btn-primary" style="background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              Copy Terminal Commands
+            </button>
+            <a href="https://github.com/ashima19arora/iris-voice-assistant" target="_blank" rel="noopener" class="demo-btn-outline">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              View GitHub Repository
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE LIVE ORB & SIMULATOR -->
+      <div class="simulator-container">
+        <div class="sim-header">
+          <div class="sim-title">
+            <span style="color: var(--accent-blue);">⚡</span>
+            <span>Interactive Live Web Orb & Voice Simulator</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; color: #10b981;">
+            ● Browser Audio Engine Active
+          </div>
+        </div>
+
+        <div class="sim-layout">
+          <!-- ORB DISPLAY -->
+          <div class="sim-orb-stage">
+            <div class="web-interactive-orb" id="webSimOrb" onclick="toggleWebSpeechMic()">
+              <div class="web-orb-glow-outer"></div>
+              <div class="web-orb-ring"></div>
+              <div class="web-orb-core-sphere">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="web-orb-pulse-label" id="webSimOrbLabel">Click Orb to Speak / Test</div>
+          </div>
+
+          <!-- CONSOLE & COMMANDS -->
+          <div class="sim-console-stage">
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+              TRY PRESET ACCESSIBILITY COMMANDS:
+            </div>
+            <div class="sim-chips-container">
+              <button class="sim-chip-btn" onclick="runSimulatedCommand('take a screen shot')">📸 Take a screen shot</button>
+              <button class="sim-chip-btn" onclick="runSimulatedCommand('check ram and battery')">⚡ Check RAM & Battery</button>
+              <button class="sim-chip-btn" onclick="runSimulatedCommand('describe screen')">👁️ Describe screen</button>
+              <button class="sim-chip-btn" onclick="runSimulatedCommand('volume up')">🔊 Volume Up</button>
+              <button class="sim-chip-btn" onclick="runSimulatedCommand('open whatsapp web')">🌐 Open WhatsApp Web</button>
+              <button class="sim-chip-btn" onclick="runSimulatedCommand('स्क्रीनशॉट ले लो')">🇮🇳 स्क्रीनशॉट ले लो</button>
+            </div>
+
+            <!-- LIVE TERMINAL CONSOLE -->
+            <div class="sim-terminal-screen" id="simTerminal">
+              <div><span class="term-line-time">[SYS 09:50]</span> <span style="color:#94a3b8;">Iris Engine Standby • Amazon Cedar Policy Active • Fast-Path Ready</span></div>
+              <div><span class="term-line-time">[TIP]</span> Click any command above or type your own to simulate real-time intent resolution and speech feedback!</div>
+            </div>
+
+            <!-- CUSTOM INPUT -->
+            <form class="sim-input-row" onsubmit="handleCustomSimCommand(event)">
+              <input type="text" id="simCustomInput" class="sim-text-input" placeholder="Or type a voice command e.g. 'take a screenshot of whole page'..." />
+              <button type="submit" class="sim-send-btn">Execute</button>
+            </form>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -1359,16 +1907,16 @@
         </div>
       </div>
 
-      <!-- BOTTOM BAR (MAYANK FIRST WITH LINKEDIN SVG LOGOS) -->
+      <!-- BOTTOM BAR (ASHIMA FIRST THEN MAYANK WITH LINKEDIN SVG LOGOS) -->
       <div class="footer-bottom">
         made with ♡ during Bharat Builds Tour by 
-        <a href="https://www.linkedin.com/in/mayankgarg18/" target="_blank" rel="noopener" class="linkedin-link-item">
-          <svg class="linkedin-icon-svg" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
-          Mayank
-        </a>
         <a href="https://www.linkedin.com/in/ashima-arora-0396ab336/" target="_blank" rel="noopener" class="linkedin-link-item">
           <svg class="linkedin-icon-svg" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
           Ashima
+        </a>
+        <a href="https://www.linkedin.com/in/mayankgarg18/" target="_blank" rel="noopener" class="linkedin-link-item">
+          <svg class="linkedin-icon-svg" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+          Mayank
         </a>
       </div>
     </div>
@@ -1611,11 +2159,237 @@
           const dot = document.getElementById('bdot' + i);
           if (dot) {
             if (i <= activeDots) dot.classList.add('active');
-            else dot.classList.remove('active');
           }
         }
       }
     });
+
+    // 6. DEMO VIEW SIMULATOR & AUDIO SYNTHESIS
+    function toggleExtensionGuide() {
+      const guide = document.getElementById('extInstallGuide');
+      if (guide) {
+        guide.classList.toggle('open');
+      }
+    }
+
+    const SIM_INTENT_MAP = {
+      'take a screen shot': {
+        intent: 'SCREENSHOT',
+        confidence: '0.982',
+        cedar: 'Action::"SCREENSHOT" on Resource::"Screen"',
+        action: 'Captured full page screenshot -> saved to Pictures/Screenshots/Screenshot_2026.png',
+        spoken: 'Taking a screenshot of the whole screen... Screenshot saved to your Screenshots folder.'
+      },
+      'check ram and battery': {
+        intent: 'SYSTEM_STATUS',
+        confidence: '0.978',
+        cedar: 'Action::"READ_SYSTEM" on Resource::"Hardware"',
+        action: 'RAM: 7.8 GB of 16.0 GB used (48.8%). Battery: 84% charging.',
+        spoken: 'You have 8.2 gigabytes of RAM available. Battery level is 84 percent.'
+      },
+      'describe screen': {
+        intent: 'READ_SCREEN',
+        confidence: '0.965',
+        cedar: 'Action::"READ_SCREEN" on Resource::"Display"',
+        action: 'Analyzed active window: 1 header, 4 buttons, and navigation bar detected.',
+        spoken: 'Active window is Iris Website with navigation bar, download suite, and interactive live orb.'
+      },
+      'volume up': {
+        intent: 'VOLUME_UP',
+        confidence: '0.990',
+        cedar: 'Action::"VOLUME_UP" on Resource::"Audio"',
+        action: 'Master system audio stepped up 3 increments.',
+        spoken: 'Increasing volume.'
+      },
+      'open whatsapp web': {
+        intent: 'OPEN_WEBSITE',
+        confidence: '0.988',
+        cedar: 'Action::"OPEN_WEBSITE" on Resource::"Browser"',
+        action: 'Navigating active browser session to https://web.whatsapp.com',
+        spoken: 'Opening WhatsApp Web.'
+      },
+      'स्क्रीनशॉट ले लो': {
+        intent: 'SCREENSHOT_HI',
+        confidence: '0.985',
+        cedar: 'Action::"SCREENSHOT" on Resource::"Screen"',
+        action: 'स्क्रीनशॉट सुरक्षित किया गया -> Pictures/Screenshots',
+        spoken: 'स्क्रीनशॉट ले रही हूँ... स्क्रीनशॉट आपके स्क्रीनशॉट फ़ोल्डर में सुरक्षित हो गया है।'
+      }
+    };
+
+    function runSimulatedCommand(rawCmd) {
+      const orb = document.getElementById('webSimOrb');
+      const orbLabel = document.getElementById('webSimOrbLabel');
+      const terminal = document.getElementById('simTerminal');
+
+      if (!terminal) return;
+
+      const normCmd = rawCmd.toLowerCase().trim();
+      let match = SIM_INTENT_MAP[normCmd];
+      if (!match) {
+        if (normCmd.includes('screen') || normCmd.includes('shot')) {
+          match = SIM_INTENT_MAP['take a screen shot'];
+        } else if (normCmd.includes('ram') || normCmd.includes('battery') || normCmd.includes('memory')) {
+          match = SIM_INTENT_MAP['check ram and battery'];
+        } else if (normCmd.includes('volume') || normCmd.includes('sound')) {
+          match = SIM_INTENT_MAP['volume up'];
+        } else {
+          match = {
+            intent: 'GENERAL_QUERY',
+            confidence: '0.950',
+            cedar: 'Action::"PROCESS_COMMAND" on Resource::"Core"',
+            action: `Dispatched voice command: "${rawCmd}"`,
+            spoken: `Executing ${rawCmd}. Done.`
+          };
+        }
+      }
+
+      // Visual reaction on orb
+      if (orb) {
+        orb.style.transform = 'scale(1.15)';
+        setTimeout(() => { orb.style.transform = 'scale(1)'; }, 1000);
+      }
+      if (orbLabel) {
+        orbLabel.textContent = `Processing "${rawCmd}"...`;
+        setTimeout(() => { orbLabel.textContent = 'Click Orb to Speak / Test'; }, 3000);
+      }
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      // Append terminal output
+      terminal.innerHTML += `
+        <div style="margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 6px;">
+          <div><span class="term-line-time">[${timeStr}] Voice Utterance:</span> <strong style="color:#fff;">"${rawCmd}"</strong></div>
+          <div><span class="term-line-intent">→ Intent Resolved:</span> ${match.intent} <span style="color:#64748b;">(Confidence: ${match.confidence})</span></div>
+          <div><span class="term-line-cedar">✓ AWS Cedar Security:</span> PERMIT [${match.cedar}]</div>
+          <div><span style="color:#94a3b8;">⚙️ Execution Result:</span> ${match.action}</div>
+          <div><span class="term-line-speech">🔊 Spoken Response:</span> "${match.spoken}"</div>
+        </div>
+      `;
+      terminal.scrollTop = terminal.scrollHeight;
+
+      // Speak response out loud in browser
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(match.spoken);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        if (normCmd.includes('स्क्रीनशॉट') || normCmd.includes('lo')) {
+          utterance.lang = 'hi-IN';
+        } else {
+          utterance.lang = 'en-US';
+        }
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function handleCustomSimCommand(e) {
+      e.preventDefault();
+      const input = document.getElementById('simCustomInput');
+      if (input && input.value.trim()) {
+        runSimulatedCommand(input.value.trim());
+        input.value = '';
+      }
+    }
+
+    let webSpeechRec = null;
+    function toggleWebSpeechMic() {
+      if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        runSimulatedCommand('take a screen shot');
+        return;
+      }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!webSpeechRec) {
+        webSpeechRec = new SpeechRecognition();
+        webSpeechRec.continuous = false;
+        webSpeechRec.interimResults = false;
+        webSpeechRec.lang = 'en-US';
+
+        webSpeechRec.onstart = () => {
+          const orb = document.getElementById('webSimOrb');
+          const label = document.getElementById('webSimOrbLabel');
+          if (orb) orb.style.transform = 'scale(1.15)';
+          if (label) label.textContent = 'Listening to your microphone... Speak now!';
+        };
+
+        webSpeechRec.onresult = (evt) => {
+          const text = evt.results[0][0].transcript;
+          runSimulatedCommand(text);
+        };
+
+        webSpeechRec.onerror = () => {
+          const label = document.getElementById('webSimOrbLabel');
+          if (label) label.textContent = 'Mic input idle. Click preset or type below.';
+          const orb = document.getElementById('webSimOrb');
+          if (orb) orb.style.transform = 'scale(1)';
+        };
+
+        webSpeechRec.onend = () => {
+          const orb = document.getElementById('webSimOrb');
+          if (orb) orb.style.transform = 'scale(1)';
+        };
+      }
+
+      try {
+        webSpeechRec.start();
+      } catch (err) {
+        webSpeechRec.stop();
+      }
+    }
+
+    function copyTextToClipboard(text, elementId) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showCopiedStatus(elementId);
+        }).catch(() => fallbackCopy(text, elementId));
+      } else {
+        fallbackCopy(text, elementId);
+      }
+    }
+
+    function fallbackCopy(text, elementId) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showCopiedStatus(elementId);
+      } catch (e) {}
+      document.body.removeChild(ta);
+    }
+
+    function showCopiedStatus(elementId) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        const orig = el.innerHTML;
+        el.innerHTML = '✓ Copied Commands!';
+        setTimeout(() => { el.innerHTML = orig; }, 2200);
+      }
+    }
+
+    // Dynamic Cloud Release Link Resolver
+    // If running hosted on AWS Amplify or custom domain, route large binary downloads to GitHub Releases CDN
+    (function initCloudDownloadLinks() {
+      const host = window.location.hostname;
+      const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '';
+      if (!isLocal) {
+        const GITHUB_BASE = 'https://github.com/ashima19arora/iris-voice-assistant/releases/latest/download/';
+        const setupLink = document.getElementById('dlSetupExe');
+        const zipLink = document.getElementById('dlZipBundle');
+        if (setupLink) {
+          setupLink.href = GITHUB_BASE + 'Iris-Orb-Setup.exe';
+          setupLink.setAttribute('target', '_blank');
+        }
+        if (zipLink) {
+          zipLink.href = GITHUB_BASE + 'Iris-Orb-Windows-v1.0.0.zip';
+          zipLink.setAttribute('target', '_blank');
+        }
+      }
+    })();
   </script>
 </body>
 </html>

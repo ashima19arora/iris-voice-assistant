@@ -60,6 +60,7 @@ _ASR_PAIRS: Tuple[Tuple[str, str], ...] = (
     (r"\bvolumn\b", "volume"),
     (r"\bmutes?\b", "mute"),
     (r"\bscreensht\b", "screenshot"),
+    (r"\bscreen\s+shots?\b", "screenshot"),
     (r"\bwhats\b", "what is"),
     (r"\bwhat'?s\b", "what is"),
     (r"\bit'?s\b", "it is"),
@@ -73,11 +74,45 @@ _ASR_PAIRS: Tuple[Tuple[str, str], ...] = (
     (r"\btask\s+manger\b", "task manager"),
     (r"\bthe\s+task\s+manager\b", "task manager"),
     (r"\baid\s+of\s+draham\b", "link"),
+    # Devanagari phonetic normalization for Indian language commands
+    (r"नोटपैड", "notepad"),
+    (r"कैलकुलेटर", "calculator"),
+    (r"कैल्क", "calc"),
+    (r"क्रोम", "chrome"),
+    (r"एज", "edge"),
+    (r"यूट्यूब", "youtube"),
+    (r"व्हाट्सएप", "whatsapp"),
+    (r"व्हाट्सऐप", "whatsapp"),
+    (r"गूगल", "google"),
+    (r"खोलो", "kholo"),
+    (r"खोल", "khol"),
+    (r"चलाओ", "chalao"),
+    (r"स्क्रीनशॉट", "screenshot"),
+    (r"आवाज़|आवाज", "aawaz"),
+    (r"वॉल्यूम", "volume"),
+    (r"बढ़ाओ|बढाओ|तेज़|तेज", "badhao"),
+    (r"कम", "kam"),
+    (r"करो|करदो", "karo"),
+    (r"बंद", "band"),
+    (r"म्यूट", "mute"),
+    (r"समय|टाइम", "samay"),
+    (r"बताओ|बताइए", "batao"),
+    (r"तारीख|तारीख़|डेट", "taareekh"),
+    (r"नमस्ते|नमस्कार|प्रणाम", "namaste"),
+    (r"हेलो|हैलो|हेल्लो", "hello"),
+    (r"इरिस|आइरिस", "iris"),
+    (r"कैसे|कैसी|कैसा", "kaise"),
+    (r"बात", "baat"),
+    (r"सकते|सकती|सकता", "sakte"),
+    (r"बोल|बोलना", "bol"),
+    (r"हिंदी|हिन्दी", "hindi"),
+    (r"अलविदा", "alvida"),
+    (r"मदद|सहायता", "help"),
 )
 ASR_COMPILED: Tuple[Tuple[Pattern[str], str], ...] = tuple(
     (re.compile(pat, re.IGNORECASE), repl) for pat, repl in _ASR_PAIRS
 )
-NON_WORD_RE = re.compile(r"[^\w\s.\-]+")
+NON_WORD_RE = re.compile(r"[^\w\s.\-+*/]+")
 ORDINAL_NUMBER_RE = re.compile(r"\b(?:number|#)\s*(\d+|one|two|three|four|five)\b")
 ORDINAL_WORD_RE = re.compile(r"\b(first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th)\b")
 ORDINAL_DIGIT_RE = re.compile(r"\b(\d+)\b")
@@ -231,8 +266,8 @@ def _split_utterance(transcription: str) -> List[str]:
 
 def _open_named(target: str, text: str, raw: str, match: re.Match, kind: str) -> Intent:
     target = _safe_param(target).lower()
-    if "whatsapp" in target:
-        if "web" in target or re.search(r"\bweb\b|\bbrowser\b", text):
+    if "whatsapp" in target or "whatsapp" in text:
+        if re.search(r"\bwebs?\b|\bbrowser\b|\bsite\b|\bwebsite\b|\bonline\b", text):
             return _intent("OPEN_WEBSITE", {"target": "whatsapp web"}, match, text, raw, kind)
         return _intent("OPEN_APP", {"app_name": "whatsapp"}, match, text, raw, kind)
     if target in ("settings", "setting"):
@@ -294,6 +329,18 @@ def _extract_what_is_open(m: re.Match, text: str, raw: str) -> Optional[Intent]:
     return _intent("WHAT_IS_OPEN", {}, m, text, raw, "exact")
 
 
+def _extract_list_files(m: re.Match, text: str, raw: str) -> Optional[Intent]:
+    gd = m.groupdict()
+    loc = gd.get("location") or gd.get("location2") or gd.get("location3") or "desktop"
+    return _intent("LIST_FILES", {"location": loc.lower().strip()}, m, text, raw, "exact")
+
+
+def _extract_list_installed_apps(m: re.Match, text: str, raw: str) -> Optional[Intent]:
+    gd = m.groupdict()
+    q = _safe_param(gd.get("query") or gd.get("query2") or "")
+    return _intent("LIST_INSTALLED_APPS", {"search_query": q}, m, text, raw, "exact")
+
+
 def _extract_click(name: str) -> Extractor:
     def _fn(m: re.Match, text: str, raw: str) -> Optional[Intent]:
         gd = m.groupdict()
@@ -308,10 +355,11 @@ def _extract_click(name: str) -> Extractor:
             t = text.lower()
             return _intent("CLICK_AT_MOUSE", {"double": "double" in t, "right": "right" in t}, m, text, raw, "exact")
 
-        # Strip relative clauses like "that is open that is X", "on the screen of X"
+        # Strip relative clauses like "that is open that is X", "on the screen of X", "that is there"
         clean_blob = blob
         if re.search(r"\b(?:that\s+is\s+open\s+that\s+is|on\s+the\s+screen\s+of)\s+\S+", clean_blob, flags=re.IGNORECASE):
             clean_blob = re.sub(r"^(?:(?:the\s+)?link\s+)?(?:that\s+is\s+open\s+that\s+is|on\s+the\s+screen\s+of)\s+", "", clean_blob, flags=re.IGNORECASE).strip()
+        clean_blob = re.sub(r"\bthat\s+is\s+(?:there|present|on\s+(?:the\s+)?screen)\b", "", clean_blob, flags=re.IGNORECASE).strip()
         clean_blob = re.sub(r"[.?!,]+$", "", clean_blob).strip()
 
         target, nth = parse_ordinal(clean_blob or blob)
@@ -342,17 +390,41 @@ def _extract_compound(m: re.Match, text: str, raw: str) -> Optional[Intent]:
     )
 
 
+def _extract_whatsapp_message(m: re.Match, text: str, raw: str) -> Optional[Intent]:
+    gd = m.groupdict()
+    message = _safe_param(gd.get("message") or gd.get("message2") or "")
+    contact = _safe_param(gd.get("contact") or gd.get("contact2") or "")
+    if not message or not contact:
+        return None
+    return _intent(
+        "WHATSAPP_MESSAGE",
+        {"contact": contact, "message": message},
+        m, text, raw, "exact",
+    )
+
+
+QUESTION_MARKERS_RE = re.compile(
+    r'\b(?:who|what|where|why|how|when|which|kaun|kya|kahan|kab|kisne|kaise|kitna|kitne|batao|explain|meaning|capital|ceo|founder)\b',
+    re.IGNORECASE
+)
+
+
 def _extract_search(m: re.Match, text: str, raw: str) -> Optional[Intent]:
     query = _safe_param(m.group("query"))
     if not query:
         return None
+    # If the user asked a question (e.g., "Google ke CEO kaun hai", "google what is photosynthesis"),
+    # route to KNOWLEDGE_QUERY so it is spoken directly without opening browser tabs
+    if QUESTION_MARKERS_RE.search(query) or QUESTION_MARKERS_RE.search(text):
+        return _intent("KNOWLEDGE_QUERY", {"query": text, "full_text": text}, m, text, raw, "exact")
     if text.startswith("compare"):
         query = _safe_param(text)
     return _intent("SEARCH_WEB", {"query": query}, m, text, raw, "exact")
 
 
 def _extract_knowledge(m: re.Match, text: str, raw: str) -> Optional[Intent]:
-    query = _safe_param(m.group("query"), text)
+    gd = m.groupdict()
+    query = _safe_param(gd.get("query") or gd.get("query2") or text, text)
     return _intent("KNOWLEDGE_QUERY", {"query": query, "full_text": text}, m, text, raw, "exact")
 
 
@@ -366,6 +438,10 @@ def _extract_open_app(m: re.Match, text: str, raw: str) -> Optional[Intent]:
         app = "settings"
     if not app:
         return None
+    # If user explicitly asked for web version of an app (e.g. "open whatsapp web", "whatsapp webs for me")
+    if "whatsapp" in app or "whatsapp" in text:
+        if re.search(r"\bwebs?\b|\bbrowser\b|\bsite\b|\bwebsite\b|\bonline\b", text):
+            return _intent("OPEN_WEBSITE", {"target": "whatsapp web"}, m, text, raw, "exact")
     return _intent("OPEN_APP", {"app_name": app}, m, text, raw, "exact")
 
 
@@ -374,6 +450,9 @@ def _extract_open_fallback(m: re.Match, text: str, raw: str) -> Optional[Intent]
     if not target:
         return None
     lowered = target.lower()
+    if "whatsapp" in lowered or "whatsapp" in text:
+        if re.search(r"\bwebs?\b|\bbrowser\b|\bsite\b|\bwebsite\b|\bonline\b", text):
+            return _intent("OPEN_WEBSITE", {"target": "whatsapp web"}, m, text, raw, "exact")
     if lowered in ("settings", "setting"):
         return _intent("OPEN_APP", {"app_name": "settings"}, m, text, raw, "exact")
     if re.fullmatch(KNOWN_APPS, lowered):
@@ -414,15 +493,29 @@ def _extract_type(m: re.Match, text: str, raw: str) -> Optional[Intent]:
 RULES: List[Rule] = [
     Rule("EXIT_ASSISTANT", 100, [_c(rf"\b(?:goodbye|bye|alvida|stop\s+listening)\b|\b(?:iris|assistant)\s+band\s+{HI_VERB}\b|\bquit\b(?!\s+(?:tab|window))|\bexit\b(?!\s+(?:tab|window))")], _ex_const("EXIT_ASSISTANT")),
     Rule("LOCK_SCREEN", 96, [_c(rf"\b(?:lock\s+(?:the\s+)?(?:computer|screen|workstation|pc)|(?:computer|screen)\s+lock\s+{HI_VERB}|screen\s+lock\s+{HI_VERB})\b")], _ex_const("LOCK_SCREEN")),
-    Rule("SCREENSHOT", 95, [_c(rf"\b(?:take\s+(?:a\s+)?screenshot|capture\s+(?:the\s+)?screen|screenshot(?:\s+lo|\s+kheencho)?)\b")], _ex_const("SCREENSHOT")),
+    Rule(
+        "SCREENSHOT",
+        95,
+        [
+            _c(
+                rf"\b(?:take\s+(?:a\s+)?(?:screen\s*shot|screenshot|snap|picture\s+of\s+(?:the\s+)?screen)|"
+                rf"capture\s+(?:the\s+)?(?:screen|whole\s+page|full\s+screen|entire\s+screen|desktop|page)|"
+                rf"(?:screen\s*shot|screenshot)(?:\s+(?:lo|le\s+lo|kheencho|kheecho|khincho|karo))?|"
+                rf"ek\s+screenshot(?:\s+le\s+lo|\s+lo)?|"
+                rf"save\s+(?:a\s+)?(?:screen\s*shot|screenshot))\b"
+                rf"(?:\s+(?:of\s+)?(?:the\s+)?(?:whole\s+page|full\s+screen|entire\s+screen|whole\s+screen|screen|page|desktop))?"
+            )
+        ],
+        _ex_const("SCREENSHOT")
+    ),
     Rule("VOLUME_UP", 90, [_c(rf"\b(?:volume\s+up|increase\s+volume|raise\s+volume|turn\s+up\s+(?:the\s+)?volume|louder|aawaz\s+badhao|awaz\s+badhao|volume\s+badhao|aawaz\s+tez\s+{HI_VERB})\b")], _ex_const("VOLUME_UP", {"steps": 3})),
     Rule("VOLUME_DOWN", 90, [_c(rf"\b(?:volume\s+down|decrease\s+volume|lower\s+volume|turn\s+down\s+volume|softer|quieter|aawaz\s+kam\s+{HI_VERB}|volume\s+kam\s+{HI_VERB})\b")], _ex_const("VOLUME_DOWN", {"steps": 3})),
     Rule("VOLUME_MUTE", 90, [_c(rf"\b(?:(?:un)?mute(?:\s+volume)?|silence\s+audio|aawaz\s+band\s+{HI_VERB}|mute\s+{HI_VERB})\b")], _ex_const("VOLUME_MUTE")),
     Rule("SYSTEM_RAM", 88, [_c(r"\b(?:how\s+much\s+)?(?:ram|memory)\b.*\b(?:occupied|used|free|available|left|consumed|usage|status|kitna|kitni)\b|\b(?:check\s+(?:the\s+)?(?:ram|memory)|ram\s+usage|memory\s+usage|how\s+much\s+ram)\b")], _ex_const("SYSTEM_RAM")),
     Rule("SYSTEM_BATTERY", 88, [_c(r"\b(?:how\s+much\s+)?(?:battery|power)\s*(?:percentage|status|level|remaining|life|is\s+left|kitni|kitna|bachi)\b")], _ex_const("SYSTEM_BATTERY")),
     Rule("SYSTEM_CPU", 88, [_c(r"\b(?:cpu|processor)\s*(?:usage|utilization|load|percentage|status|kitna|load\s+kitna)\b")], _ex_const("SYSTEM_CPU")),
-    Rule("SYSTEM_TIME", 88, [_c(r"\b(?:what\s+is\s+the\s+time|what\s+time\s+is\s+it|current\s+time|time\s+kya|samay\s+kya|waqt\s+kya)\b")], _ex_const("SYSTEM_TIME")),
-    Rule("SYSTEM_DATE", 88, [_c(r"\b(?:what\s+is\s+(?:the\s+)?(?:today'?s?\s+)?date|what\s+day\s+is\s+it|today'?s?\s+date|date\s+kya|taareekh\s+kya)\b")], _ex_const("SYSTEM_DATE")),
+    Rule("SYSTEM_TIME", 88, [_c(r"\b(?:what\s+is\s+the\s+time|what\s+time\s+is\s+it|current\s+time|time\s+kya|samay\s+kya|waqt\s+kya|time\s+batao|samay\s+batao|waqt\s+batao)\b")], _ex_const("SYSTEM_TIME")),
+    Rule("SYSTEM_DATE", 88, [_c(r"\b(?:what\s+is\s+(?:the\s+)?(?:today'?s?\s+)?date|what\s+day\s+is\s+it|today'?s?\s+date|date\s+kya|taareekh\s+kya|date\s+batao|taareekh\s+batao)\b")], _ex_const("SYSTEM_DATE")),
     Rule("BROWSER_SCROLL_TOP", 87, [_c(rf"\b(?:scroll\s+to\s+top|go\s+to\s+top|top\s+of\s+page|sabse\s+upar\s+(?:jao|{HI_VERB}))\b")], _ex_const("BROWSER_SCROLL_TOP"), note="More specific than generic scroll up"),
     Rule("BROWSER_SCROLL_BOTTOM", 87, [_c(rf"\b(?:scroll\s+to\s+bottom|go\s+to\s+bottom|bottom\s+of\s+page|sabse\s+neeche\s+(?:jao|{HI_VERB}))\b")], _ex_const("BROWSER_SCROLL_BOTTOM")),
     Rule("BROWSER_SCROLL_DOWN", 86, [_c(rf"\b(?:scroll\s+down|page\s+down|neeche\s+scroll(?:\s+{HI_VERB})?|scroll\s+{HI_VERB}\s+neeche|neeche\s+jao)\b")], _ex_const("BROWSER_SCROLL_DOWN", {"steps": 1})),
@@ -430,13 +523,45 @@ RULES: List[Rule] = [
     Rule("BROWSER_ZOOM_IN", 86, [_c(rf"\b(?:zoom\s+in(?:\s+browser)?|zoom\s+badao|bada\s+dikhao)\b")], _ex_const("BROWSER_ZOOM_IN")),
     Rule("BROWSER_ZOOM_OUT", 86, [_c(rf"\b(?:zoom\s+out(?:\s+browser)?|zoom\s+kam\s+{HI_VERB}|chhota\s+dikhao)\b")], _ex_const("BROWSER_ZOOM_OUT")),
     Rule("BROWSER_ZOOM_RESET", 86, [_c(rf"\b(?:reset\s+zoom|normal\s+zoom|default\s+zoom|zoom\s+reset(?:\s+{HI_VERB})?)\b")], _ex_const("BROWSER_ZOOM_RESET")),
-    Rule("SEARCH_WEB", 84, [
-        _c(r"^(?:search(?:\s+for|\s+on\s+the\s+web\s+for|\s+the\s+web\s+for)|google|look\s+up|compare|research)\s+(?P<query>.{1,200})$"),
-        _c(r"^search\s+(?!on\s+page\b|in\s+page\b|page\s+for\b)(?P<query>.{1,200})$"),
-        _c(rf"\b(?:search|google|dhoondo|dhundo)\s+{HI_VERB}\s+(?P<query>.{{1,200}})$"),
-        _c(rf"^(?P<query>.{{1,80}}?)\s+(?:search|dhoondo|dhundo)\s+{HI_VERB}$"),
-    ], _extract_search, note="Negative lookahead keeps 'search on page' for BROWSER_FIND_ON_PAGE"),
-    Rule("OPEN_APP", 83, [_c(rf"(?:{OPEN_VERB})\s+(?:the\s+)?(?:windows\s+)?(?P<app>settings)\b|\bsettings\s+{HI_OPEN}\b")], _extract_open_app),
+    Rule(
+        "KNOWLEDGE_QUERY",
+        84,
+        [
+            # English standard question prefixes
+            _c(r"^(?:what\s+(?:is|are|was|were|happens|did)|who\s+(?:is|was|are|were)|where\s+(?:is|are|was|were)|why\s+(?:is|are|do|does|did)|how\s+(?:does|do|did|is|are|much|many|to)|when\s+(?:is|was|did)|which\s+(?:is|are)|(?:tell\s+me\s+)?about|explain|define|meaning\s+of|capital\s+of|currency\s+of|population\s+of|price\s+of|weather\s+in)\s+(?P<query>.{1,200})$"),
+            # Hindi question suffixes
+            _c(r"^(?P<query>.{1,120}?)\s+(?:ke\s+baare\s+mein\s+batao|ke\s+bare\s+me\s+batao|kaise\s+kaam\s+karta\s+hai|kaise\s+hota\s+hai|kisne\s+banaya|kya\s+hota\s+hai|kya\s+hai|kaun\s+hai|kaun\s+hain|kaun\s+h|kaun\s+the|kahan\s+hai|kahan\s+h|kab\s+hua|kab\s+tha|kitna\s+hai|kitne\s+hain|kaisa\s+hai|kaisi\s+hai|batao)$"),
+            # Hindi question prefixes
+            _c(r"^(?:batao\s+(?:ki\s+)?|mujhe\s+batao\s+(?:ki\s+)?)(?P<query>.{1,150})$"),
+            # Direct math queries (e.g. 5 + 5, 20 * 4)
+            _c(r"^(?:what\s+is\s+|calculate\s+)?(?P<query>\d+(?:\.\d+)?\s*[\+\-\*\/xX]\s*\d+(?:\.\d+)?(?:\s*[\+\-\*\/xX]\s*\d+(?:\.\d+)?)*)(?:\s+kitna\s+hota\s+hai|\s+kya\s+hoga)?$"),
+        ],
+        _extract_knowledge,
+        note="Direct factual Q&A - answered aloud via voice without opening browser"
+    ),
+    Rule(
+        "SEARCH_WEB",
+        83,
+        [
+            _c(r"^(?:search\s+(?:for|on\s+the\s+web\s+for|the\s+web\s+for|web\s+for|google\s+for)|look\s+up(?:\s+on\s+the\s+web)?|google\s+search)\s+(?P<query>.{1,200})$"),
+            _c(r"^google\s+(?P<query>.{1,200})$"),
+            _c(r"^search\s+(?!on\s+page\b|in\s+page\b|page\s+for\b)(?P<query>.{1,200})$"),
+            _c(rf"\b(?:search|google|dhoondo|dhundo)\s+{HI_VERB}\s+(?P<query>.{{1,200}})$"),
+            _c(rf"^(?P<query>.{{1,80}}?)\s+(?:search|dhoondo|dhundo)\s+{HI_VERB}$"),
+            _c(r"^(?:web\s+par\s+(?:dhoondo|search\s+karo)|internet\s+par\s+(?:dhoondo|search\s+karo))\s+(?P<query>.{1,120})$"),
+        ],
+        _extract_search,
+        note="Explicit web searches only - takes user to browser"
+    ),
+    Rule(
+        "OPEN_APP",
+        83,
+        [
+            _c(rf"(?:{OPEN_VERB})\s+(?:the\s+)?(?:windows\s+)?(?P<app>{KNOWN_APPS})\b"),
+            _c(rf"\b(?P<app>{KNOWN_APPS})\s+(?:{HI_OPEN}|open\s+{HI_VERB})\b"),
+        ],
+        _extract_open_app,
+    ),
     Rule("OPEN_WEBSITE", 82, [
         _c(rf"\b(?:{OPEN_VERB})\s+(?:the\s+)?(?:website\s+)?(?P<target>[a-z0-9-]+(?:\.[a-z0-9-]+)+)\b"),
         _c(rf"\b(?:{OPEN_VERB})\s+(?:the\s+)?(?P<target>{KNOWN_SITES})(?:\.com|\.org)?\b"),
@@ -456,6 +581,16 @@ RULES: List[Rule] = [
         _c(r"^(?:what\s+(?:apps|applications|programs|windows)\s+are\s+open|what\s+is\s+open(?:\s+right\s+now)?|what\s+is\s+running\s+in\s+the\s+background|what\s+is\s+happening\s+in\s+the\s+background)(?:\s+please)?$"),
         _c(r"^(?:background\s+mein\s+kya\s+chal\s+raha\s+hai|kya\s+kya\s+open\s+hai)$"),
     ], _extract_what_is_open, kind="exact"),
+    Rule("LIST_FILES", 85, [
+        _c(r"^(?:what\s+(?:documents?|files?)\s+does\s+(?:my\s+|the\s+)?(?P<location>desktop|documents?|docs|iris)(?:\s+folder)?\s+contain|what\s+(?:documents?|files?)\s+are\s+(?:in|on)\s+(?:my\s+|the\s+)?(?P<location2>desktop|documents?|docs|iris)(?:\s+folder)?|list\s+(?:the\s+)?(?:documents?|files?)\s+(?:in|on)\s+(?:my\s+|the\s+)?(?P<location3>desktop|documents?|docs|iris)(?:\s+folder)?)(?:\s+please)?$"),
+        _c(r"^(?:what\s+is\s+(?:in|on)\s+(?:my\s+|the\s+)?(?P<location>desktop|documents?|docs|iris)(?:\s+folder)?)(?:\s+please)?$"),
+        _c(r"^(?:(?:desktop|documents?)\s+(?:folder\s+)?(?:par|mein)\s+(?:kya\s+hai|files\s+batao))$"),
+    ], _extract_list_files, kind="exact"),
+    Rule("LIST_INSTALLED_APPS", 85, [
+        _c(r"^(?:what\s+(?:apps|applications)\s+are\s+installed|what\s+installed\s+apps\s+(?:are\s+there|do\s+i\s+have)|list\s+installed\s+apps|which\s+apps\s+(?:can\s+i\s+open|are\s+available)|what\s+apps\s+can\s+i\s+open)(?:\s+please)?$"),
+        _c(r"^(?:search\s+(?:for\s+)?(?:installed\s+)?apps?\s+(?:for\s+)?(?P<query>[a-zA-Z0-9_\s]{2,40})|is\s+(?P<query2>[a-zA-Z0-9_\s]{2,40})\s+installed)(?:\s+please)?$"),
+        _c(r"^(?:kaun\s+kaun\s+se\s+apps\s+installed\s+hain|installed\s+apps\s+batao)$"),
+    ], _extract_list_installed_apps, kind="exact"),
     Rule("CLICK_ELEMENT", 83, [
         _c(r"^(?:click|tap|open|follow)\s+(?:on\s+)?(?:the\s+)?(?P<target>(?:(?:first|second|third|fourth|fifth|1st|2nd|3rd|4th|5th|next|previous)\s+)?(?:result|search\s+result|link|website\s+link|url)(?:\s+(?:on|in)\s+(?:the\s+)?(?:page|screen|results))?)$"),
         _c(r"^(?:click|tap|open)?\s*(?:on\s+)?(?:the\s+)?(?P<target>link\s+that\s+is\s+being\s+displayed)(?:\s+(?:that\s+is\s+)?(?P<target2>.{1,80}))?$"),
@@ -518,6 +653,13 @@ RULES: List[Rule] = [
     Rule("COPY_TEXT", 70, [_c(rf"\b(?:copy(?:\s+this|\s+that|\s+text)?|copy\s+{HI_VERB})\b")], _ex_const("COPY_TEXT")),
     Rule("PASTE_TEXT", 70, [_c(rf"\b(?:paste(?:\s+this|\s+that|\s+text|\s+here)?|paste\s+{HI_VERB})\b")], _ex_const("PASTE_TEXT")),
     Rule("UNDO_ACTION", 70, [_c(rf"\b(?:undo(?:\s+that|\s+last\s+action|\s+edit)?(?!\s+close\s+tab)|undo\s+{HI_VERB})\b")], _ex_const("UNDO_ACTION"), note="Does not steal 'undo close tab'"),
+    Rule("WHATSAPP_MESSAGE", 88, [
+        _c(r"^(?:send|text|message|msg)\s+(?P<message>.{1,200}?)\s+to\s+(?P<contact>.{1,80}?)\s+(?:on|in|via)\s+whatsapp$"),
+        _c(r"^(?:send|text|message|msg)\s+(?P<message>.{1,200}?)\s+to\s+(?P<contact>.{1,80})\s+on\s+whatsapp\s+web$"),
+        _c(r"^whatsapp\s+(?P<contact>.{1,80}?)\s+ko\s+(?P<message>.{1,200}?)\s+bhej(?:o|\s+do)$"),
+        _c(r"^(?:send\s+(?:a\s+)?(?:whatsapp|whatsapp\s+web)\s+(?:message\s+)?(?:to\s+)?(?P<contact>.{1,80}?)\s+(?:saying|message|that\s+says?)\s+(?P<message2>.{1,200}))$"),
+        _c(r"^(?:on\s+whatsapp\s+)?send\s+(?P<message>.{1,200}?)\s+to\s+(?P<contact>.{1,80})$"),
+    ], _extract_whatsapp_message, note="Dedicated WhatsApp messaging — outranks COMPOUND and SEARCH"),
     Rule("COMPOUND_OPEN_AND_TYPE", 85, [_c(r"^(?P<open>open\s+.{1,80}?)\s+and\s+(?:then\s+)?(?:type|write|say|send|text|message|msg)\s+(?P<text>.{1,200})$"), _c(rf"^(?P<open>{HI_OPEN}\s+.{{1,80}}?)\s+aur\s+(?:type|likho|likh|bhej)\s+(?:{HI_VERB}\s+)?(?P<text>.{{1,200}})$")], _extract_compound, note="Must outrank OPEN_APP/OPEN_WEBSITE"),
     Rule("TYPE_AND_SEND", 61, [_c(r"^(?:type|text|send\s+message|write)\s+(?P<text>.{1,200}?)\s+(?:and\s+send(?:\s+it)?|aur\s+bhej\s+do)$"), _c(r"^(?:type\s+and\s+send|write\s+and\s+send)\s+(?P<text>.{1,200})$")], _extract_type_send),
     Rule("SEND_MESSAGE", 60, [_c(rf"\b(?:send\s+message|send\s+it|message\s+bhej\s+do|send\s+{HI_VERB})\b")], _ex_const("SEND_MESSAGE")),
@@ -528,8 +670,18 @@ RULES: List[Rule] = [
     Rule("RIGHT_CLICK_ELEMENT", 51, [_c(r"(?:right\s+click|right\s+tap)\s+(?:on\s+)?(?:the\s+)?(?P<target>.{1,80}?)$"), _c(rf"^(?P<target>.{{1,80}}?)\s+(?:par|pe)\s+right\s+click\s+{HI_VERB}$")], _extract_click("RIGHT_CLICK_ELEMENT"), kind="fuzzy"),
     Rule("HOVER_ELEMENT", 51, [_c(r"(?:hover\s+(?:over|on)|move\s+(?:mouse|cursor)\s+(?:to|over|on))\s+(?:the\s+)?(?P<target>.{1,80}?)$"), _c(rf"^(?P<target>.{{1,80}}?)\s+(?:par|pe)\s+hover\s+{HI_VERB}$")], _extract_click("HOVER_ELEMENT"), kind="fuzzy"),
     Rule("CLICK_ELEMENT", 50, [_c(r"(?:click|tap)\s+(?:on\s+)?(?:the\s+)?(?P<target>.{1,80}?)$"), _c(rf"^(?P<target>.{{1,80}}?)\s+(?:par|pe)\s+(?:click|tap)\s+{HI_VERB}$")], _extract_click("CLICK_ELEMENT"), kind="fuzzy"),
-    Rule("GREETING", 40, [_c(r"^(?:hello|hi|hey|wake\s*up|start|good\s+morning|good\s+afternoon|good\s+evening|namaste|namaskar|pranam)(?:\s+iris)?$"), _c(r"^(?:who\s+are\s+you|what\s+can\s+you\s+do|how\s+are\s+you(?:\s+doing)?|help|aap\s+kaun\s+ho|tum\s+kaun\s+ho)$")], _extract_greeting),
-    Rule("KNOWLEDGE_QUERY", 25, [_c(r"^(?:what\s+is|who\s+is|where\s+is|why\s+is|how\s+does|tell\s+me\s+about|about|explain|define)\s+(?P<query>.{1,200})$"), _c(r"^(?P<query>.{1,80}?)\s+(?:kya\s+hai|kaun\s+hai|kahan\s+hai|ke\s+baare\s+mein\s+batao)$")], _extract_knowledge),
+    Rule(
+        "GREETING",
+        86,
+        [
+            _c(r"^(?:hello|hi|hey|wake\s*up|start|good\s+morning|good\s+afternoon|good\s+evening|namaste|namaskar|pranam)(?:\s+iris)?$"),
+            _c(r"^(?:who\s+are\s+you|what\s+can\s+you\s+do|how\s+are\s+you(?:\s+doing)?|help|aap\s+kaun\s+ho|tum\s+kaun\s+ho|tum\s+kaise\s+ho|aap\s+kaise\s+ho|kaise\s+ho|kya\s+haal\s+hai|kya\s+haal)(?:\s+iris)?$"),
+            _c(r"^(?:hello\s+)?(?:iris\s+)?(?:tum\s+kaise\s+ho|aap\s+kaise\s+ho|kaise\s+ho)(?:\s+iris)?$"),
+            _c(r"^(?:(?:kya\s+)?(?:aap|tum)\s+)?(?:hindi|hindi\s+mein)(?:\s+baat\s+kar\s+sakte\s+ho|\s+bol\s+sakte\s+ho|\s+aati\s+hai|\s+samajhte\s+ho)(?:\s+iris)?$"),
+            _c(r"^(?:can\s+you\s+speak\s+hindi|do\s+you\s+speak\s+hindi|speak\s+in\s+hindi|talk\s+in\s+hindi)$"),
+        ],
+        _extract_greeting,
+    ),
     Rule("OPEN_WEBSITE", 20, [_c(r"^(?:open|launch)\s+(?P<target>.{1,120})$")], _extract_open_fallback, kind="fallback", note="Low confidence; intended Tier-2 handoff"),
     Rule("KNOWLEDGE_QUERY", 15, [_c(r"\b(?:what|who|where|when|why|how|tell|explain|define|meaning|kya|kaun|kaise|batao)\b")], lambda m, t, r: _intent("KNOWLEDGE_QUERY", {"query": _safe_param(t), "full_text": t}, m, t, r, "fallback") if len(t.split()) >= 3 else None, kind="fallback"),
     Rule("SEARCH_WEB", 10, [_c(r"\b(?:compare|versus|vs|difference)\b")], lambda m, t, r: _intent("SEARCH_WEB", {"query": _safe_param(t)}, m, t, r, "fallback") if len(t.split()) >= 3 else None, kind="fallback"),

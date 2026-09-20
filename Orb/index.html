@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iris Orb</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="collapsed">
+  <div class="app-container" id="appContainer">
+
+    <!-- FLOATING DESKTOP ORB (ON THE LEFT IN EXPANDED MODE, CENTERED IN COLLAPSED MODE) -->
+    <div class="orb-anchor" id="orbAnchor">
+      <div class="orb-wrapper" id="floatingOrb" title="Iris Orb - Say 'Hey Iris' to wake up, click to toggle chat, or right-click & hold to talk">
+        <div class="orb-halo"></div>
+        <div class="orb-halo secondary"></div>
+        <div class="orb-core">
+          <img src="assets/iris-image.png" class="orb-img" alt="Iris Logo" draggable="false" />
+          <div class="orb-glow-overlay"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPANDED GLASSMORPHIC CHATBOX (TO THE RIGHT OF THE ORB) -->
+    <div class="chatbox-container" id="chatbox">
+      <!-- Drag Handle Header -->
+      <div class="chat-header" id="chatHeader" title="Drag to move chatbox">
+        <div class="header-left">
+          <img src="assets/iris-image.png" class="header-logo-img" alt="Iris Logo" draggable="false" />
+          <span class="header-title">Iris AI Assistant</span>
+          <div class="status-badge" id="statusBadge">
+            <span class="status-dot"></span>
+            <span id="statusText">READY</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="header-btn lang-btn" id="langToggleBtn" title="Switch Language: English / हिन्दी (Amazon Polly Aditi)">
+            <span id="langLabel">🌐 EN</span>
+          </button>
+          <button class="header-btn" id="collapseBtn" title="Collapse to Orb">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button class="header-btn" id="closeBtn" title="Close">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages Stream -->
+      <div class="chat-messages" id="chatMessages">
+        <div class="message assistant">
+          <div class="bubble">
+            Hello! I am Iris. Voice engine: Amazon Polly Neural. How can I help you today?
+          </div>
+          <span class="time-stamp">Just now</span>
+        </div>
+      </div>
+
+      <!-- Quick Action Suggestions -->
+      <div class="quick-chips" id="quickChips">
+        <button class="chip" data-cmd="What is on my screen?">What's on screen?</button>
+        <button class="chip" data-cmd="What apps are running?">Open apps</button>
+        <button class="chip" data-cmd="Open Notepad">Open Notepad</button>
+        <button class="chip" data-cmd="Volume up">Volume up</button>
+      </div>
+
+      <!-- Bottom Dock: Input Box + Mic + Send -->
+      <div class="chat-input-bar">
+        <div class="input-container">
+          <input type="text" id="userInput" placeholder="Ask Iris or type a command..." autocomplete="off" />
+          
+          <!-- Microphone Voice Button -->
+          <button class="mic-btn" id="micBtn" title="Speak a voice command">
+            <svg class="mic-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+              <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
+          </button>
+
+          <!-- Send Button -->
+          <button class="send-btn" id="sendBtn" title="Send command">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

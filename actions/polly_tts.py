@@ -13,15 +13,25 @@ from __future__ import annotations
 
 import io
 import os
+import sys
 import logging
 import threading
 from typing import Dict, Optional
+from dotenv import load_dotenv
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+load_dotenv(os.path.join(PROJECT_ROOT, ".env"), override=True)
 
 logger = logging.getLogger("IrisPollyTTS")
 
-REGION_NAME = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
-VOICE_EN = os.getenv("POLLY_VOICE_EN", "Joanna")
-VOICE_HI = os.getenv("POLLY_VOICE_HI", "Aditi")
+def get_region() -> str:
+    return os.getenv("AWS_DEFAULT_REGION", "eu-north-1")
+
+def get_voice_en() -> str:
+    return os.getenv("POLLY_VOICE_EN", "Joanna")
+
+def get_voice_hi() -> str:
+    return os.getenv("POLLY_VOICE_HI", "Aditi")
 
 _polly_client = None
 _client_lock = threading.Lock()
@@ -42,7 +52,7 @@ def get_polly_client():
                 return None
             try:
                 import boto3
-                _polly_client = boto3.client("polly", region_name=REGION_NAME)
+                _polly_client = boto3.client("polly", region_name=get_region())
             except Exception as exc:
                 logger.debug("Could not initialize Amazon Polly client: %s", exc)
                 return None
@@ -66,15 +76,16 @@ def synthesize_polly_audio(text: str, lang: str = "en") -> Optional[bytes]:
     if not client:
         return None
 
-    voice_id = VOICE_HI if lang == "hi" else VOICE_EN
+    voice_id = get_voice_hi() if lang == "hi" else get_voice_en()
     try:
-        # Try Neural engine first for human-like quality
+        # Aditi only supports standard engine; Joanna supports neural
+        preferred_engine = "standard" if voice_id == "Aditi" else "neural"
         try:
             response = client.synthesize_speech(
                 Text=clean_text,
                 OutputFormat="mp3",
                 VoiceId=voice_id,
-                Engine="neural"
+                Engine=preferred_engine
             )
         except Exception:
             # Fallback to standard engine if neural is unavailable for voice

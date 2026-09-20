@@ -3,7 +3,11 @@
   "private": true,
   "description": "Voice assistant — start with npm run dev",
   "scripts": {
-    "dev": "node scripts/dev.js",
-    "start": "node scripts/dev.js"
+    "dev": "npm --prefix Orb start",
+    "start": "npm --prefix Orb start",
+    "orb": "npm --prefix Orb start",
+    "gui": "npm --prefix Orb start",
+    "cli": "node scripts/dev.js",
+    "website": "python -m http.server 3000 --directory iris-website"
   }
 }
