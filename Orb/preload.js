@@ -16,7 +16,7 @@ contextBridge.exposeInMainWorld("irisOrb", {
   },
 
   // Assistant communication
-  sendCommand: (text) => ipcRenderer.send("send-command", text),
+  sendCommand: (text, opts) => ipcRenderer.send("send-command", text, opts),
   startListening: (opts) => ipcRenderer.send("start-listening", opts),
   stopListening: () => ipcRenderer.send("stop-listening"),
   onUserTranscribed: (callback) => {

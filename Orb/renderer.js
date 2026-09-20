@@ -278,9 +278,9 @@ function handleSend() {
 
   updateStatus("thinking", "PROCESSING");
 
-  // Send real command to Python backend through IPC
+  // Send real command to Python backend through IPC with active language
   if (window.irisOrb) {
-    window.irisOrb.sendCommand(text);
+    window.irisOrb.sendCommand(text, { lang: currentLang });
   }
 }
 

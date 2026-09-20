@@ -14,6 +14,7 @@ from .registry import ActionResult, INTENT_HANDLERS
 logger = logging.getLogger("iris")
 
 TIER2_CUE = "Let me check that."
+TIER2_CUE_HI = "एक पल रुकिए..."
 
 
 def should_use_reasoning_path(intent: Intent) -> bool:
@@ -75,7 +76,8 @@ def _reasoning_path(
 ) -> ActionResult:
     logger.info("reasoning-path hit intent=%s confidence=%.3f", intent.name, intent.confidence)
     # Cue MUST fire before the blocking LLM call.
-    speak(TIER2_CUE, lang=lang)
+    cue = TIER2_CUE_HI if lang == 'hi' else TIER2_CUE
+    speak(cue, lang=lang)
     gather = gather_fn or (lambda **k: gather_context(lang=lang, utterance=transcription, speak_errors=False))
     context = gather(lang=lang) if gather_fn else gather_context(lang=lang, utterance=transcription, speak_errors=False)
     try:
@@ -112,10 +114,11 @@ def execute_command(
     confirm_fn: Optional[Callable] = None,
     complete_fn: Optional[Callable] = None,
     gather_fn: Optional[Callable] = None,
+    lang: Optional[str] = None,
 ) -> ActionResult:
     from .languages import detect_language
 
-    user_lang = detect_language(transcription)
+    user_lang = lang or detect_language(transcription)
     intent = parse_intent(transcription)
     if should_use_reasoning_path(intent):
         return _reasoning_path(

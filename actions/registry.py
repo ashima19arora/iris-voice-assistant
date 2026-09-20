@@ -481,7 +481,7 @@ INTENT_HANDLERS: Dict[str, Callable[[Dict[str, Any]], ActionResult]] = {
     "EXIT_ASSISTANT": handle_exit,
 }
 
-def execute_command(transcription: str) -> ActionResult:
+def execute_command(transcription: str, *, lang: Optional[str] = None) -> ActionResult:
     """Delegate to the two-tier executor (fast path, then planner)."""
     from .executor import execute_command as run_two_tier
-    return run_two_tier(transcription)
+    return run_two_tier(transcription, lang=lang)

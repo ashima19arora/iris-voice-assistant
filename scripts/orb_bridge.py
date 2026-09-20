@@ -13,12 +13,14 @@ import time
 import threading
 import logging
 
-# Ensure UTF-8 output
+# Ensure robust UTF-8 stdio on Windows across Python 3.10+
 try:
+    if hasattr(sys.stdin, "reconfigure"):
+        sys.stdin.reconfigure(encoding="utf-8", errors="replace")
     if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     if hasattr(sys.stderr, "reconfigure"):
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 except Exception:
     pass
 
@@ -81,7 +83,7 @@ def send_ipc(data: dict):
     except Exception as e:
         logger.error(f"Failed to send IPC data: {e}")
 
-def handle_command(text: str):
+def handle_command(text: str, lang: str = "auto"):
     """Executes natural language command via Iris actions engine."""
     global _is_sleeping, _last_active_time
     if not text or not text.strip():
@@ -91,12 +93,13 @@ def handle_command(text: str):
     _last_active_time = time.time()
 
     text = text.strip()
-    logger.info(f"Executing command: '{text}'")
+    logger.info(f"Executing command: '{text}' (lang={lang})")
     send_ipc({"type": "status", "state": "thinking", "text": "PROCESSING"})
 
     with _command_lock:
         try:
-            result = actions.execute_command(text)
+            exec_lang = lang if lang and lang != "auto" else None
+            result = actions.execute_command(text, lang=exec_lang)
             
             reply_message = result.message or f"Executed: {text}"
             send_ipc({
@@ -450,7 +453,8 @@ def main():
             msg_type = data.get("type")
             if msg_type == "command":
                 text = data.get("text", "")
-                threading.Thread(target=handle_command, args=(text,), daemon=True).start()
+                lang = data.get("lang", "auto")
+                threading.Thread(target=handle_command, args=(text, lang), daemon=True).start()
             elif msg_type == "listen":
                 lang = data.get("lang", "auto")
                 threading.Thread(target=handle_listen, args=(lang,), daemon=True).start()

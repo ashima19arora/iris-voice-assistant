@@ -116,8 +116,15 @@ def run_planner(
     lang: str = "en",
 ) -> Dict[str, Any]:
     tools = schemas_from_registry()
+    system_prompt = PLANNER_SYSTEM
+    if lang == "hi":
+        system_prompt += (
+            " LANGUAGE REQUIREMENT: The user's active language is Hindi (हिन्दी). "
+            "You MUST speak your final response in clear, conversational Hindi in Devanagari script. "
+            "Never reply in English when the user is in Hindi mode."
+        )
     messages: List[Dict[str, Any]] = [
-        {"role": "system", "content": PLANNER_SYSTEM},
+        {"role": "system", "content": system_prompt},
         {
             "role": "user",
             "content": json.dumps({"utterance": utterance, "context": context, "lang": lang}, default=str)[:8000],

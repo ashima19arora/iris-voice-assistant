@@ -324,6 +324,7 @@ function startPythonBridge() {
       env: {
         ...process.env,
         PYTHONUNBUFFERED: "1",
+        PYTHONIOENCODING: "utf-8",
         PYGAME_HIDE_SUPPORT_PROMPT: "1",
       },
       windowsHide: true,
@@ -407,63 +408,64 @@ function sendBridgeCommand(cmdObj) {
 }
 
 // Fallback execution for basic OS commands if bridge is not ready
-function executeFallbackCommand(text) {
+function executeFallbackCommand(text, lang = "auto") {
   const t = (text || "").trim();
   const lower = t.toLowerCase();
+  const isHi = lang === "hi" || /[\u0900-\u097F]/.test(t);
   let executed = false;
-  let reply = `Executed: ${t}`;
+  let reply = isHi ? `निष्पादित किया गया: ${t}` : `Executed: ${t}`;
 
   if (lower.includes("edge")) {
     exec("start msedge:");
-    reply = "Opening Microsoft Edge";
+    reply = isHi ? "माइक्रोसॉफ्ट एज खोल रहा हूँ" : "Opening Microsoft Edge";
     executed = true;
   } else if (lower.includes("notepad") || lower.includes("नोटपैड")) {
     exec("start notepad");
-    reply = "Opening Notepad";
+    reply = isHi ? "नोटपैड खोल रहा हूँ" : "Opening Notepad";
     executed = true;
   } else if (lower.includes("calc") || lower.includes("कैलकुलेटर")) {
     exec("start calc:");
-    reply = "Opening Calculator";
+    reply = isHi ? "कैलकुलेटर खोल रहा हूँ" : "Opening Calculator";
     executed = true;
   } else if (lower.includes("chrome") || lower.includes("गूगल क्रोम")) {
     exec("start chrome");
-    reply = "Opening Google Chrome";
+    reply = isHi ? "गूगल क्रोम खोल रहा हूँ" : "Opening Google Chrome";
     executed = true;
   } else if (lower.includes("time") || lower.includes("समय")) {
     const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    reply = lower.includes("समय") ? `वर्तमान समय ${timeStr} है।` : `The current time is ${timeStr}.`;
+    reply = isHi ? `वर्तमान समय ${timeStr} है।` : `The current time is ${timeStr}.`;
     executed = true;
   } else if (lower.includes("date") || lower.includes("तारीख") || lower.includes("दिनांक")) {
     const dateStr = new Date().toLocaleDateString([], { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-    reply = lower.includes("तारीख") || lower.includes("दिनांक") ? `आज की तारीख: ${dateStr}` : `Today is ${dateStr}.`;
+    reply = isHi ? `आज की तारीख: ${dateStr}` : `Today is ${dateStr}.`;
     executed = true;
   } else if (lower.includes("screenshot") || lower.includes("स्क्रीनशॉट")) {
     exec("start ms-screenclip:");
-    reply = "Opening Snipping Tool for screenshot";
+    reply = isHi ? "स्क्रीनशॉट के लिए स्निपिंग टूल खोल रहा हूँ" : "Opening Snipping Tool for screenshot";
     executed = true;
   } else if (lower.startsWith("search") || lower.startsWith("google") || lower.startsWith("खोजो")) {
     const query = t.replace(/^(search|google|खोजो)\s*(for)?\s*/i, "").trim();
     if (query) {
       exec(`start https://www.google.com/search?q=${encodeURIComponent(query)}`);
-      reply = `Searching Google for: ${query}`;
+      reply = isHi ? `गूगल पर खोज रहा हूँ: ${query}` : `Searching Google for: ${query}`;
       executed = true;
     }
   } else if (lower.startsWith("youtube") || lower.startsWith("play") || lower.includes("यूट्यूब")) {
     const query = t.replace(/^(youtube|play|यूट्यूब)\s*/i, "").trim();
     if (query) {
       exec(`start https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`);
-      reply = `Searching YouTube for: ${query}`;
+      reply = isHi ? `यूट्यूब पर खोज रहा हूँ: ${query}` : `Searching YouTube for: ${query}`;
     } else {
       exec("start https://www.youtube.com");
-      reply = "Opening YouTube";
+      reply = isHi ? "यूट्यूब खोल रहा हूँ" : "Opening YouTube";
     }
     executed = true;
   } else if (lower.includes("help") || lower.includes("मदद")) {
-    reply = "Supported actions: Open Notepad, Open Chrome, Open Edge, Calculator, Time, Date, Search <query>, YouTube <song>.";
+    reply = isHi ? "समर्थित कमांड: नोटपैड खोलो, क्रोम खोलो, कैलकुलेटर, समय, तारीख, स्क्रीनशॉट, यूट्यूब चलाओ।" : "Supported actions: Open Notepad, Open Chrome, Open Edge, Calculator, Time, Date, Search <query>, YouTube <song>.";
     executed = true;
   } else {
     exec(`start https://www.google.com/search?q=${encodeURIComponent(t)}`);
-    reply = `Searching for: ${t}`;
+    reply = isHi ? `खोज रहा हूँ: ${t}` : `Searching for: ${t}`;
     executed = true;
   }
 
@@ -482,10 +484,11 @@ function executeFallbackCommand(text) {
 // ------------------------------------------------------------
 // IPC DISPATCH HANDLERS
 // ------------------------------------------------------------
-ipcMain.on("send-command", (_, text) => {
-  const ok = sendBridgeCommand({ type: "command", text });
+ipcMain.on("send-command", (_, text, opts) => {
+  const lang = (opts && opts.lang) || "auto";
+  const ok = sendBridgeCommand({ type: "command", text, lang });
   if (!ok) {
-    executeFallbackCommand(text);
+    executeFallbackCommand(text, lang);
   }
 });
 
