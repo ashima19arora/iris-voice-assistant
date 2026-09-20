@@ -60,8 +60,22 @@ def synthesize_edge_audio(text: str, lang: str = "en") -> Optional[bytes]:
             return _edge_audio_cache[cache_key]
 
     try:
-        # Run asyncio event loop safely in synchronous wrapper
-        audio_bytes = asyncio.run(_synthesize_edge_bytes(clean_text, voice))
+        # Use a fresh event loop to avoid RuntimeError when called from threads
+        # that may already have a running loop (e.g., TTS daemon thread)
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            # We're inside an existing event loop — create a new one in a thread
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                audio_bytes = pool.submit(
+                    asyncio.run, _synthesize_edge_bytes(clean_text, voice)
+                ).result(timeout=10)
+        else:
+            audio_bytes = asyncio.run(_synthesize_edge_bytes(clean_text, voice))
         if audio_bytes:
             with _cache_lock:
                 if len(_edge_audio_cache) >= MAX_CACHE_ITEMS:

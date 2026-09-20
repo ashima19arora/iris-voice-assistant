@@ -50,6 +50,7 @@ _is_manual_recording = False
 _last_manual_recording_time = 0.0
 _handsfree_running = True
 _command_lock = threading.Lock()
+_manual_stop_event = threading.Event()
 
 # Lazy load ASR model only when voice recognition is requested
 _asr_model = None
@@ -130,28 +131,45 @@ def handle_command(text: str, lang: str = "auto"):
 
 def handle_listen(lang: str = "auto"):
     """Manual voice command trigger (Mic button or right-click push-to-talk)."""
-    global _is_manual_recording, _is_sleeping, _last_active_time, _last_manual_recording_time
+    global _is_manual_recording, _is_sleeping, _last_active_time, _last_manual_recording_time, _manual_stop_event
+    _manual_stop_event.clear()
     _is_manual_recording = True
     _is_sleeping = False
     _last_active_time = time.time()
 
     import speech_recognition as sr
     recognizer = sr.Recognizer()
-    recognizer.pause_threshold = 1.4
-    recognizer.non_speaking_duration = 0.5
-    recognizer.phrase_threshold = 0.3
+    recognizer.pause_threshold = 0.85
+    recognizer.non_speaking_duration = 0.35
+    recognizer.phrase_threshold = 0.25
 
     send_ipc({"type": "status", "state": "listening", "text": "LISTENING..."})
 
     try:
         with sr.Microphone(sample_rate=16000) as source:
-            logger.info("Adjusting for ambient noise...")
-            recognizer.adjust_for_ambient_noise(source, duration=0.4)
-            recognizer.dynamic_energy_threshold = False
-            recognizer.energy_threshold = max(recognizer.energy_threshold, 300)
+            recognizer.adjust_for_ambient_noise(source, duration=0.2)
+            recognizer.dynamic_energy_threshold = True
+            recognizer.dynamic_energy_ratio = 1.5
+            recognizer.energy_threshold = max(recognizer.energy_threshold, 350)
 
             logger.info(f"Listening for speech (lang mode: {lang})...")
-            audio = recognizer.listen(source, timeout=7.0, phrase_time_limit=15.0)
+            audio_chunks = []
+            try:
+                for chunk in recognizer._listen(source, timeout=6.5, phrase_time_limit=14.0, stream=True):
+                    audio_chunks.append(chunk)
+                    if _manual_stop_event.is_set():
+                        logger.info("Manual stop requested (push-to-talk released or toggled).")
+                        break
+            except sr.WaitTimeoutError:
+                if not audio_chunks:
+                    raise
+
+            if not audio_chunks:
+                send_ipc({"type": "status", "state": "ready", "text": "READY"})
+                return
+
+            raw_data = b"".join(c.get_raw_data() for c in audio_chunks)
+            audio = sr.AudioData(raw_data, source.SAMPLE_RATE, source.SAMPLE_WIDTH)
 
         send_ipc({"type": "status", "state": "thinking", "text": "TRANSCRIBING..."})
 
@@ -212,9 +230,16 @@ def handle_listen(lang: str = "auto"):
                         pass
 
         if text:
+            # Reject noise artifacts
+            clean_t = text.strip()
+            if len(clean_t) < 2 or clean_t.lower() in ("uh", "um", "ah", "eh", "huh"):
+                logger.info(f"Ignoring voice noise artifact: '{text}'")
+                send_ipc({"type": "status", "state": "ready", "text": "READY"})
+                return
+
             logger.info(f"Transcribed voice: '{text}'")
             send_ipc({"type": "transcribed", "text": text})
-            handle_command(text)
+            handle_command(text, lang=lang)
         else:
             send_ipc({
                 "type": "result",
@@ -256,18 +281,20 @@ def handsfree_worker():
 
     import speech_recognition as sr
     recognizer = sr.Recognizer()
-    recognizer.pause_threshold = 1.1
-    recognizer.non_speaking_duration = 0.5
+    recognizer.pause_threshold = 0.9
+    recognizer.non_speaking_duration = 0.4
     recognizer.phrase_threshold = 0.3
-    recognizer.dynamic_energy_threshold = False
-    recognizer.energy_threshold = 320
+    recognizer.dynamic_energy_threshold = True
+    recognizer.dynamic_energy_adjustment_damping = 0.15
+    recognizer.dynamic_energy_ratio = 1.6
+    recognizer.energy_threshold = 360
 
     time.sleep(2.0)  # Wait for initial engine load
 
     try:
         with sr.Microphone(sample_rate=16000) as source:
             recognizer.adjust_for_ambient_noise(source, duration=0.5)
-            recognizer.energy_threshold = max(recognizer.energy_threshold, 300)
+            recognizer.energy_threshold = max(recognizer.energy_threshold, 350)
 
             # Signal standby state initially
             send_ipc({"type": "status", "state": "sleeping", "text": "STANDBY"})
@@ -340,54 +367,52 @@ def handsfree_worker():
                 if not text:
                     continue
 
+                clean_text = text.strip()
+                # Ignore short background noise artifacts
+                if len(clean_text) < 3 or clean_text.lower() in ("uh", "um", "ah", "eh", "huh", "you", "the"):
+                    continue
+
                 logger.info(f"[Handsfree Heard] '{text}' (sleeping={_is_sleeping})")
 
                 if _is_sleeping:
                     wake_match = re.search(WAKE_WORDS_PATTERN, text, re.IGNORECASE)
-                    
-                    parsed_candidate = None
                     if not wake_match:
+                        # Strictly ignore ambient noise and non-wake speech in standby
+                        continue
+
+                    _is_sleeping = False
+                    _last_active_time = time.time()
+                    logger.info(f"[Iris Woke Up!] Triggered by '{text}'")
+                    send_ipc({"type": "wake", "text": text})
+
+                    # Check for compound command (e.g. "Hey Iris, open WhatsApp Web")
+                    command_after = text.strip()
+                    while True:
+                        prev_cmd = command_after
+                        command_after = re.sub(WAKE_PREFIX_STRIP, '', command_after, flags=re.IGNORECASE).strip()
+                        if command_after == prev_cmd:
+                            break
+
+                    has_real_content = bool(re.search(r'[a-zA-Z0-9]', command_after))
+                    if command_after and has_real_content:
+                        send_ipc({"type": "transcribed", "text": command_after})
+                        handle_command(command_after)
+                    else:
+                        wake_resp = "Hey, I am awake and ready for your commands!"
+                        send_ipc({
+                            "type": "result",
+                            "success": True,
+                            "intent": "WAKE",
+                            "message": wake_resp,
+                            "text": wake_resp
+                        })
+                        send_ipc({"type": "status", "state": "speaking", "text": "SPEAKING"})
                         try:
-                            candidate_intent = actions.intent_parser.parse_intent(text)
-                            if candidate_intent.name not in ("UNKNOWN", "SEARCH_WEB"):
-                                parsed_candidate = candidate_intent
+                            actions.speak(wake_resp, lang="en", asynchronous=False)
+                            actions.wait_until_speech_finishes(timeout=4.0)
                         except Exception:
-                            parsed_candidate = None
-
-                    if wake_match or parsed_candidate:
-                        _is_sleeping = False
-                        _last_active_time = time.time()
-                        logger.info(f"[Iris Woke Up!] Triggered by '{text}'")
-                        send_ipc({"type": "wake", "text": text})
-
-                        # Check for compound command (e.g. "Hey Iris, open WhatsApp Web")
-                        command_after = text.strip()
-                        while True:
-                            prev_cmd = command_after
-                            command_after = re.sub(WAKE_PREFIX_STRIP, '', command_after, flags=re.IGNORECASE).strip()
-                            if command_after == prev_cmd:
-                                break
-
-                        has_real_content = bool(re.search(r'[a-zA-Z0-9]', command_after))
-                        if command_after and has_real_content:
-                            send_ipc({"type": "transcribed", "text": command_after})
-                            handle_command(command_after)
-                        else:
-                            wake_resp = "Hey, I am awake and ready for your commands!"
-                            send_ipc({
-                                "type": "result",
-                                "success": True,
-                                "intent": "WAKE",
-                                "message": wake_resp,
-                                "text": wake_resp
-                            })
-                            send_ipc({"type": "status", "state": "speaking", "text": "SPEAKING"})
-                            try:
-                                actions.speak(wake_resp, lang="en", asynchronous=False)
-                                actions.wait_until_speech_finishes(timeout=4.0)
-                            except Exception:
-                                pass
-                            send_ipc({"type": "status", "state": "ready", "text": "READY"})
+                            pass
+                        send_ipc({"type": "status", "state": "ready", "text": "READY"})
                 else:
                     # Active Mode: reset inactivity timer
                     _last_active_time = time.time()
@@ -435,6 +460,8 @@ def main():
     # Launch hands-free continuous voice daemon
     threading.Thread(target=handsfree_worker, daemon=True).start()
 
+    global _is_sleeping, _last_active_time
+
     while True:
         try:
             line = sys.stdin.readline()
@@ -466,7 +493,7 @@ def main():
                 _last_active_time = time.time()
                 send_ipc({"type": "status", "state": "ready", "text": "READY"})
             elif msg_type == "stop":
-                pass
+                _manual_stop_event.set()
             elif msg_type == "ping":
                 send_ipc({"type": "pong"})
             else:

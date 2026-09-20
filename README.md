@@ -179,19 +179,18 @@ playwright install chromium
 
 ### 2. Launch Iris Desktop Orb
 ```powershell
-# Start Desktop Floating Orb GUI
+# Start Desktop Floating Orb GUI (Recommended)
 npm run orb
 
 # Or launch directly with Python core
 python assistant.py
 ```
 
-### 3. Install Browser Extension (Chrome / Edge)
-1. Open your browser and navigate to `chrome://extensions` or `edge://extensions`.
-2. Turn on the **"Developer mode"** toggle in the top-right corner.
-3. Click **"Load unpacked"** and select the [`iris-extension`](file:///c:/Users/Mayank%20Garg/OneDrive/Desktop/Projects/iris-voice-assistant/iris-extension) folder.
-4. Click **"Grant Microphone Access"** on the welcome tab that appears.
-5. Press <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd> on any webpage to summon the in-page orb!
+### 3. Interacting with Iris
+- **Hands-Free Wake Word:** Say *"Hey Iris"* or *"आईरिस"* to wake the assistant from standby.
+- **Push-to-Talk (Right-Click):** Hold right-click on the floating orb to speak; release to immediately execute. Single right-click tap toggles voice listening on/off.
+- **Global Shortcut:** Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> from any application to summon or minimize the floating orb.
+- **Bilingual Switcher:** Click the **🌐 EN / 🇮🇳 हिन्दी** badge in the chat window to switch between Amazon Polly Joanna (English) and Aditi (Hindi).
 
 ---
 

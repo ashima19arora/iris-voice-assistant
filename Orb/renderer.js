@@ -115,9 +115,10 @@ setupDraggable(chatHeader);
 window.addEventListener("contextmenu", (e) => e.preventDefault());
 
 // ============================================================
-// PUSH-TO-TALK VIA RIGHT-CLICK & HOLD (COLLAPSED & EXPANDED)
+// VOICE VIA RIGHT-CLICK: PUSH-TO-TALK (HOLD) & TAP (TOGGLE)
 // ============================================================
 let isRightClickListening = false;
+let rightClickDownTime = 0;
 
 function setupRightClickVoice(el) {
   if (!el) return;
@@ -126,12 +127,24 @@ function setupRightClickVoice(el) {
     if (e.button === 2) { // Right click
       e.preventDefault();
       e.stopPropagation();
-      if (!isRightClickListening) {
-        isRightClickListening = true;
-        updateStatus("listening", "LISTENING...");
+      rightClickDownTime = Date.now();
+
+      // If already listening, right-click acts as a manual stop / toggle off
+      if (isVoiceListening || isRightClickListening) {
+        isRightClickListening = false;
+        isVoiceListening = false;
+        updateStatus("thinking", "TRANSCRIBING...");
         if (window.irisOrb) {
-          window.irisOrb.startListening({ lang: currentLang });
+          window.irisOrb.stopListening();
         }
+        return;
+      }
+
+      // Start listening immediately with active language
+      isRightClickListening = true;
+      updateStatus("listening", "LISTENING...");
+      if (window.irisOrb) {
+        window.irisOrb.startListening({ lang: currentLang });
       }
     }
   });
@@ -140,10 +153,15 @@ function setupRightClickVoice(el) {
     if (e.button === 2 && isRightClickListening) {
       e.preventDefault();
       e.stopPropagation();
-      isRightClickListening = false;
-      updateStatus("thinking", "TRANSCRIBING...");
-      if (window.irisOrb) {
-        window.irisOrb.stopListening();
+      const holdDuration = Date.now() - rightClickDownTime;
+      // If user held for > 350ms, it's push-to-talk: release immediately stops recording
+      // If user quickly tapped (< 350ms), keep listening until silence or another tap
+      if (holdDuration >= 350) {
+        isRightClickListening = false;
+        updateStatus("thinking", "TRANSCRIBING...");
+        if (window.irisOrb) {
+          window.irisOrb.stopListening();
+        }
       }
     }
   };
@@ -153,6 +171,7 @@ function setupRightClickVoice(el) {
 
 setupRightClickVoice(floatingOrb);
 setupRightClickVoice(chatHeader);
+setupRightClickVoice(chatContainer);
 
 // Header collapse and close buttons
 if (collapseBtn) {
@@ -300,8 +319,13 @@ if (userInput) {
 if (micBtn) {
   micBtn.addEventListener("click", () => {
     if (window.irisOrb) {
-      updateStatus("listening", "LISTENING...");
-      window.irisOrb.startListening({ lang: currentLang });
+      if (isVoiceListening) {
+        updateStatus("thinking", "TRANSCRIBING...");
+        window.irisOrb.stopListening();
+      } else {
+        updateStatus("listening", "LISTENING...");
+        window.irisOrb.startListening({ lang: currentLang });
+      }
     }
   });
 }
