@@ -169,8 +169,7 @@ Adding a new voice command takes fewer than 5 lines of code:
 
 ## Verification & Tests
 
-Run the full automated test suite (covering intent parsing, security policies, context providers, browser actions, and screen :wq
-understanding):
+Run the full automated test suite (covering intent parsing, security policies, context providers, browser actions, and screen understanding):
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests -q
