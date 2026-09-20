@@ -271,9 +271,8 @@ Orb/build/
 
 # Downloads & local release distribution artifacts
 /downloads/
-iris-website/downloads/*.exe
-iris-website/downloads/Iris-Orb-Windows-v1.0.0.zip
-!iris-website/downloads/iris-browser-extension-v1.0.0.zip
+iris-website/downloads/
+*.exe
 
 # IDE, OS & Editor caches
 .vscode/

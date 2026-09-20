@@ -29,7 +29,8 @@ PLANNER_SYSTEM = (
     "4) To create notes or files, call fs_create_file with filename, location ('desktop'), and content. "
     "5) Keep tool calls minimal: at most 1 or 2 tools. Do not chain repeated failed attempts. "
     "6) PUNCHY & CONCISE: In your spoken response, always prefer a punchy one-liner or short 1-to-2 sentence spoken answer. Never give long, robotic explanations. "
-    "7) QUESTIONS & CONVERSATIONAL Q&A: For any factual question, definition, calculation, explanation, or small talk (e.g. 'what is X', 'who is Y', 'how does Z work', 'capital of France', 'apple kya hai', 'can you speak Hindi', 'tum kaise ho'): DO NOT CALL search_web! DO NOT OPEN ANY BROWSER! Either call knowledge_answer or answer the user directly with natural speech in their language (Hindi if Hindi, English if English)."
+    "7) QUESTIONS & CONVERSATIONAL Q&A: For any factual question, definition, calculation, explanation, or small talk (e.g. 'what is X', 'who is Y', 'how does Z work', 'capital of France', 'apple kya hai', 'can you speak Hindi', 'tum kaise ho'): DO NOT CALL search_web! DO NOT OPEN ANY BROWSER! Either call knowledge_answer or answer the user directly with natural speech in their language (Hindi if Hindi, English if English). "
+    "8) CONVERSATIONAL CONTEXT & MULTI-TURN: Maintain context across dialogue turns. Resolve pronouns and references (e.g. 'it', 'they', 'he/she', 'the previous one', 'वहाँ', 'उसका', 'उसकी') using earlier dialogue turns. If the user asks follow-up questions, answer coherently within that context."
 )
 
 
@@ -114,15 +115,30 @@ def run_planner(
     complete_fn: Callable = default_tool_complete,
     confirm_fn=None,
     lang: str = "en",
+    history: Optional[List[Dict[str, str]]] = None,
 ) -> Dict[str, Any]:
     tools = schemas_from_registry()
+    system_prompt = PLANNER_SYSTEM
+    if lang == "hi":
+        system_prompt += (
+            " LANGUAGE REQUIREMENT: The user's active language is Hindi (हिन्दी). "
+            "You MUST speak your final response in clear, conversational Hindi in Devanagari script. "
+            "Never reply in English when the user is in Hindi mode."
+        )
     messages: List[Dict[str, Any]] = [
-        {"role": "system", "content": PLANNER_SYSTEM},
-        {
-            "role": "user",
-            "content": json.dumps({"utterance": utterance, "context": context, "lang": lang}, default=str)[:8000],
-        },
+        {"role": "system", "content": system_prompt},
     ]
+    if history:
+        for turn in history[-6:]:
+            r = turn.get("role")
+            c = turn.get("content")
+            if r in ("user", "assistant") and c:
+                messages.append({"role": r, "content": c})
+
+    messages.append({
+        "role": "user",
+        "content": json.dumps({"utterance": utterance, "context": context, "lang": lang}, default=str)[:8000],
+    })
     steps: List[Dict[str, Any]] = []
     call_count = 0
     raw_last: Dict[str, Any] = {}
