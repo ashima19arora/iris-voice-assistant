@@ -1,8 +1,11 @@
-# Iris
+# Iris — Digital Braille for the Internet
 
-**Digital braille for the internet — say it, and it happens.**
+> A voice-first accessibility layer for the Windows desktop and the browser.
+> Say it, and it happens.
 
-Iris is a voice-first assistant built for people the digital world leaves out — blind and low-vision users, and the much larger group of low-literacy, rural, and elderly users. It sits at the OS level and lets a person ask for something and have it happen, the way they always could before every essential service moved behind a mouse and a set of eyes.
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)](https://github.com/ashima19arora/iris-voice-assistant)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
@@ -12,166 +15,138 @@ Iris is a voice-first assistant built for people the digital world leaves out �
 - [The Idea](#the-idea)
 - [Current Build Status](#current-build-status)
 - [Architecture](#architecture)
-- [Features & Principles](#features--principles)
-- [Quick Start & Setup](#quick-start--setup)
-- [How to use (extension + local)](HOW_TO_USE.md)
-- [Voice Commands (Examples)](#voice-commands-examples)
-- [How Intent Matching Works](#how-intent-matching-works)
-- [Extending Iris](#extending-iris-add-a-new-voice-command)
-- [Safety & Sandboxing](#safety--sandboxing)
-- [Verification & Tests](#verification--tests)
+- [Interfaces](#interfaces)
+- [Where AWS Fits](#where-aws-fits)
+- [Setup](#setup)
 
 ---
 
 ## The Problem
 
-For centuries, the answer to "what if someone can't see the page or hold the book" was Braille — not a translation of books, but a rebuild of the reading interface around a different sense. The internet never got its Braille. Learning, paying bills, booking appointments, raising a complaint — all of it now lives behind a mouse and a set of eyes, with no equivalent adaptation for the people who don't have both.
+For centuries, the answer to "what if someone can't see the page or hold the book" was Braille — not a translation of books, but a rebuild of the reading interface around a different sense. The internet never got its Braille. Learning, paying bills, booking a government appointment, filing a complaint, ordering what you need — all of it now lives behind a mouse and a set of eyes, with no equivalent adaptation for the people who don't have both.
 
-India has an estimated 26.8 million persons with disabilities. Beyond that, 250 million Indian adults have limited literacy and 130 million elderly citizens are counted as digitally illiterate. Different reason, same locked door.
+India has an estimated **26.8 million** people with disabilities. Beyond that, **250 million** Indian adults have limited literacy, and **130 million** elderly citizens are counted as digitally illiterate — they can speak a request perfectly, but can't reliably read the screen meant to let them make it. Different reason, same locked door.
 
-Existing solutions do not cover this well: screen-reader-paired tools assume English fluency and cost real money (JAWS: $95/year and up), Windows' own voice control is English-only and internet-dependent, and none of them check in before acting or admit when something went wrong. Iris is scoped as OS-level rather than document/browser-only, free, and built around confirmation and narration by design.
+Existing tools don't close this gap. Screen-reader-paired software assumes English fluency and costs real money — a JAWS license runs $95 a year and up. Windows' own voice control is English-only and needs internet to function. None of them check in before acting on your behalf, and none of them admit when something went wrong.
 
 ---
 
 ## The Idea
 
-An always-present, hands-free assistant for Windows that listens for a wake phrase, takes a spoken command, and executes it: opening apps, navigating sites, filling forms, completing multi-step tasks. It narrates what it is doing as it works, and — critically — checks in before anything irreversible happens, rather than silently acting on a person's behalf.
+An always-present, hands-free assistant for Windows that listens for a wake phrase (or a right-click push-to-talk on the desktop Orb), takes a spoken command, and executes it: opening apps, navigating sites, filling forms, completing multi-step tasks. It narrates what it's doing as it works, and — critically — checks in before anything irreversible happens, rather than silently acting on a person's behalf.
+
+Iris responds in Hindi as well as English for common commands and spoken replies, alongside full English support.
 
 ---
 
 ## Current Build Status
 
-**Built, integrated, and verified (170+ tests passing):**
-- **Offline speech-to-text, English:** Tested against casual phrasing, filler words, self-correction, and long multi-clause commands (NVIDIA Parakeet TDT 0.6B v2, int8, local via `onnx-asr`).
-- **Wake-word & Lifecycle:** "hey iris" / "hi iris" / "hello iris" / "wake up", automatic inactivity sleep after 45 seconds of silence, and exit triggers.
-- **Intent Parsing Engine (`actions/intent_parser.py`):** Rule-based offline parsing with polite filler normalization, multi-step compound intent splitting, and conversational antecedent resolution.
-- **OS & Desktop Execution (`actions/`):** Full support for app launching, volume/media, window controls, screenshotting, file operations, system metrics (RAM/CPU), and browser automation.
-- **Vision & Screen Understanding (`actions/screen_understanding.py`):** Windows UI Automation tree inspection via `uiautomation`, active window detection (`win32gui`), and layout-aware OCR (`rapidocr-onnxruntime`) with mouse pointer click targeting (`click_at_mouse_position`).
-- **Safety, Security & Audit (`actions/security/`):** 3-tier intent classification (Safe, Confirmation Required, Blocked), allowlisted write paths, URL sanitization, and tamper-resistant audit logs.
-- **Spoken Feedback & Narration (`actions/feedback.py`):** Concise one-liner voice feedback with speech deduplication and confirmation gates for destructive actions.
+**Built and tested:**
+- Offline speech-to-text, English — NVIDIA Parakeet TDT 0.6B (int8), on-device
+- Wake-word activation and right-click push-to-talk
+- Continuous listening, automatic sleep on inactivity, graceful exit
+- Direct command execution: opening applications, navigating and controlling a browser, reading and clicking on-screen elements, system-level actions (volume, windows, screenshots)
+- Spoken responses in English and Hindi for supported commands
+- Windows Desktop Orb and Chrome browser extension
 
-**Under active roadmap:**
-- Hindi / code-switched multi-lingual speech models
-- Task templates for specific high-friction e-governance and banking services
+**Not yet fully verified:**
+- Full Hindi speech recognition robustness across varied, natural phrasing — supported for common commands, still being tested against the same real-speech standard used for English
+- Task templates for specific high-friction services (e.g. Aadhaar appointment booking) as a fully guided, multi-step flow
+- Text-to-speech reliability in all execution paths
 
 ---
 
 ## Architecture
 
-Windows-only for now; wake-word activation (not push-to-talk) was chosen specifically because primary users cannot reliably rely on a physical button press, and it's what "always-present, hands-free" requires.
-
 ```
 Mic input
-  → Wake word detection ("Hey Iris")
+  → Wake word detection / push-to-talk
   → Speech capture
-  → ASR / transcription  (NVIDIA Parakeet TDT 0.6B v2, int8, local via onnx-asr, offline)
-  → Intent parsing (Rule-based normalization & compound splitter)
-  → Action mapping & Security tier validation (Safe / Confirm / Blocked)
-  → Execution (OS/app-level: open app, click, navigate, fill field, UI automation)
-  → TTS narration of each step
-  → Confirmation gate (if irreversible)
-  → Result spoken back
+  → ASR / transcription  (NVIDIA Parakeet TDT 0.6B, int8, local via onnx-asr, offline)
+  → Fast intent match
+      ├─ matched   → security check
+      └─ ambiguous → AI reasoning (AWS Strands + Bedrock / OpenRouter) → security check
+  → Security check (AWS Cedar)
+  → Execute
+  → Log (Amazon DynamoDB)
+  → Spoken result (Amazon Polly / local TTS fallback)
 ```
 
-Always-on in parallel: stop-word detection and a manual mic-mute toggle, independent of the wake word.
+Simple, exact commands are handled fast and entirely offline. Only genuinely ambiguous requests escalate to AI reasoning. Every command, on either path, passes through the same security check before it's allowed to execute.
 
 ---
 
-## Features & Principles
+## Interfaces
 
-- **Spoken confirmation before anything irreversible:** Low-literacy users tend to trust AI output uncritically rather than verify it — confirmation gates are the structural fix transcription accuracy alone cannot provide.
-- **Narrated execution:** Speaks each step as it happens, answering the de-skilling concern blind users raised themselves — keeps the user oriented instead of turning execution into a black box.
-- **Directed interruption ("stop"/"wait"):** A single always-listened-for stop-word captures immediate user intent without unstable real-time barge-in overhead.
-- **Manual mic-mute + visible listening state:** Independent of the wake word — a real privacy control for user trust.
-- **Failure honesty:** States clearly when something cannot be done or was not recognized, rather than hallucinating success.
+**Windows Desktop Orb** — a floating, always-on-top overlay. Wake word or right-click-and-hold to speak. Controls the full OS: apps, files, volume, windows, screenshots.
+
+**Chrome extension** — an in-page floating orb for browser-only actions (scroll, read page, click). For OS-level commands, it forwards to the Desktop Orb's local bridge if it's running.
+
+**Command line** — `listen.py` for isolated speech-to-text testing, `assistant.py` for the full loop.
 
 ---
 
-## Quick Start & Setup
+## Where AWS Fits
 
-**End-user guide (Chrome extension + Desktop Orb):** see **[HOW_TO_USE.md](HOW_TO_USE.md)**.
+| Service | Solves | How |
+|---|---|---|
+| AWS Cedar | Security rules scattered across ad-hoc checks | Local, deterministic policy engine; evaluates every command before execution |
+| AWS Strands Agents | No structured way for AI to reliably call the right action | Exposes real callable tools to the reasoning layer |
+| Amazon Bedrock | Commands too ambiguous for fixed pattern matching | Foundation-model reasoning for open-domain questions and disambiguation |
+| Amazon DynamoDB | An audit trail that lived only in memory | Permanent, queryable log of every command, decision, and latency |
+| Amazon Polly | Flat, robotic voice output | Neural voice synthesis, English and Hindi |
+| Amazon Translate | No path to other languages | Voice-to-voice translation across 75+ languages |
+| Amazon Comprehend | No sense of user frustration | Sentiment detection on spoken input |
+| AWS Amplify | No public place to try it | Hosts the live demo site |
+| AWS SAM | Manual, error-prone infra setup | Declares the backend as code, one command, zero cost locally |
+
+The entire backend is declared as code with AWS SAM, runnable locally via LocalStack at zero cost, or deployed to real AWS.
+
+---
+
+## Setup
 
 ### Requirements
-
-- Windows 10/11
+- Windows 10 or 11
 - Python 3.10+
-- A working microphone
+- Node.js 18+ (for the Desktop Orb)
+- A microphone
 
 ### Install
 
 ```powershell
 pip install -r requirements.txt
 playwright install chromium
+npm install
+cd Orb
+npm install
+cd ..
 ```
 
-### Run Iris
+### Configure
 
-You can start Iris either using npm or directly with Python:
+Copy `.env.example` to `.env` and fill in your own values. Iris runs without any keys for core commands — keys unlock smarter reasoning (OpenRouter) and cloud voice/logging (AWS).
 
 ```powershell
-# Using the dev runner
-npm run dev
+copy .env.example .env
+```
 
-# Or directly with Python
+### Run
+
+```powershell
+npm run orb
+```
+
+A floating orb should appear. First launch loads the speech model into memory — this can take 30–90 seconds and is expected.
+
+CLI-only, no Orb UI:
+
+```powershell
 python assistant.py
 ```
 
-Say commands after you hear that Iris is active (or say "Hey Iris").
-
-### Run the speech-to-text diagnostic tool
+### Test
 
 ```powershell
-python listen.py
-```
-
----
-
-## Voice Commands (Examples)
-
-- **System & Memory:** "tell me how much RAM used" / "check battery"
-- **App Control:** "open settings", "open notepad", "open task manager"
-- **Navigation & Web:** "open youtube", "open gov.in", "search for weather in Delhi"
-- **File Actions:** "create a note.txt file on desktop"
-- **Screen & Vision:** "what is on my screen?", "read what's open", "click here", "click on the first link"
-- **Window Management:** "minimize window", "maximize", "scroll down", "volume up"
-- **Safety / Lock:** "lock screen"
-
----
-
-## How Intent Matching Works
-
-`actions/intent_parser.py` is rule-based (regex), fully offline, and deterministically fast. It:
-1. Strips polite filler ("please", "can you", "could you kindly").
-2. Resolves multi-sentence conversational context ("open google and search news").
-3. Matches the targeted intent parameters and returns structured `Intent` objects mapped to validated execution handlers.
-
----
-
-## Extending Iris (Add a New Voice Command)
-
-Adding a new voice command takes fewer than 5 lines of code:
-
-1. Add a pattern in `actions/intent_parser.py` returning `Intent(name="MY_INTENT", params={...})`.
-2. Add the corresponding handler in `actions/registry.py` (`INTENT_HANDLERS`).
-3. Set the intent safety tier in `actions/security/policy.py` (`INTENT_TIERS`).
-4. If it's a web destination or application, register it in `actions/config.py`.
-
----
-
-## Safety & Sandboxing
-
-- **File System Sandboxing:** File creations and writes are restricted exclusively to safe user directories (Desktop, Documents, or `~/Iris`).
-- **Network Safety:** Browser navigation enforces valid `http`/`https` protocols against suspicious scheme injection.
-- **Application Allowlist:** System process spawning is restricted to an approved allowlist of trusted productivity and utility apps.
-- **No Insecure Execution:** No `eval()`, `exec()`, or unsanitized shell executions.
-
----
-
-## Verification & Tests
-
-Run the full automated test suite (covering intent parsing, security policies, context providers, browser actions, and screen :wq
-understanding):
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest tests -q
+python -m pytest tests -q
 ```

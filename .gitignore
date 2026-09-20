@@ -155,6 +155,7 @@ node_modules/
 .env.*
 *.env
 .envrc
+!.env.example
 .venv
 env/
 venv/
@@ -286,4 +287,3 @@ ehthumbs.db
 *~
 *.tmp
 *.temp
-
