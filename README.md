@@ -98,6 +98,7 @@ Always-on in parallel: stop-word detection and a manual mic-mute toggle, indepen
 
 ```powershell
 pip install -r requirements.txt
+playwright install chromium
 ```
 
 ### Run Iris
@@ -165,7 +166,8 @@ Adding a new voice command takes fewer than 5 lines of code:
 
 ## Verification & Tests
 
-Run the full automated test suite (covering intent parsing, security policies, context providers, browser actions, and screen understanding):
+Run the full automated test suite (covering intent parsing, security policies, context providers, browser actions, and screen :wq
+understanding):
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests -q
