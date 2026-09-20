@@ -6,7 +6,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)](https://github.com/Maayank18/iris-voice-assistant)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://python.org)
 [![AWS Open-Source](https://img.shields.io/badge/AWS%20Open--Source-Cedar%20%7C%20Strands%20Agents-FF9900?logo=amazon-aws&logoColor=white)](https://github.com/cedar-policy)
-[![Bilingual](https://img.shields.io/badge/Voice%20Engine-English%20%7C%20%E0%A4%B9%E0%A4%BF%E0%A4%A8%E0%A5%8D%E0%A4%A6%E0%A5%80%20(Polly)-10B981)](#bilingual-experience-english--hindi)
+[![Bilingual](https://img.shields.io/badge/Voice%20Engine-English%20%7C%20%E0%A4%B9%E0%A4%BF%E0%A4%A8%E0%A5%8D%E0%A4%A6%E0%A5%80%20(Polly)-10B981)](#-bilingual-experience-english--hindi)
 [![Tests](https://img.shields.io/badge/Automated%20Tests-187%20Passing-brightgreen)](tests/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -33,11 +33,13 @@
 
 ## 🌍 The Mission & Problem Solved
 
-For centuries, the universal answer to *"what if someone cannot see the page or hold the book"* was **Braille** — not merely a translation of text, but a complete reconstruction of the reading interface around a different human sense. 
+For centuries, the universal answer to *"what if someone cannot see the page or hold the book"* was **Braille** — not merely a translation of text, but a complete reconstruction of the reading interface around a different human sense.
 
 **The modern digital world never received its Braille.**
 
-Today, essential services — paying electricity bills, booking medical appointments, learning, working, and filing grievances — are locked behind mouse clicks, complex visual hierarchies, and keyboard chords. 
+Today, essential services — paying electricity bills, booking medical appointments, learning, working, and filing grievances — are locked behind mouse clicks, complex visual hierarchies, and keyboard chords.
+
+India has an estimated **26.8 million** people with disabilities. Beyond that, **250 million** Indian adults have limited literacy, and **130 million** elderly citizens are counted as digitally illiterate — they can speak a request perfectly, but can't reliably read the screen meant to let them make it. Different reason, same locked door.
 
 ### Who Iris Is Built For:
 1. **1.3+ Billion People with Disabilities:** Individuals with motor limitations, tremors, quadriplegia, blindness, low vision, and repetitive strain injury (RSI) who cannot comfortably operate a mouse and keyboard.
@@ -46,6 +48,8 @@ Today, essential services — paying electricity bills, booking medical appointm
 4. **Bilingual & Non-English Communities:** Over 600 million Hindi speakers globally who are alienated by desktop tools that force English-only interaction.
 
 Existing solutions fall short: traditional screen readers (e.g., JAWS: $95+/year) are robotic, expensive, and require memorizing dozens of obscure hotkeys. Mobile assistants are locked inside smartphones without desktop system context. **Iris changes this fundamentally: an always-present, multimodal, bilingual voice operating layer that is 100% free, runs offline, and prioritizes safety with human-in-the-loop confirmation.**
+
+**How it works:** an always-present, hands-free assistant for Windows that listens for a wake phrase (or a right-click push-to-talk on the desktop Orb), takes a spoken command, and executes it: opening apps, navigating sites, filling forms, completing multi-step tasks. It narrates what it's doing as it works, and — critically — checks in before anything irreversible happens, rather than silently acting on a person's behalf.
 
 ---
 
@@ -64,6 +68,19 @@ flowchart TD
     E --> H[Bilingual Neural Speech Synthesis\nAmazon Polly Aditi/Joanna & Studio Neural]
     H --> I[🔊 Lifelike Spoken Feedback + Floating Orb Visuals]
 ```
+
+**Built and tested:**
+- Offline speech-to-text, English — NVIDIA Parakeet TDT 0.6B (int8), on-device
+- Wake-word activation and right-click push-to-talk
+- Continuous listening, automatic sleep on inactivity, graceful exit
+- Direct command execution: opening applications, navigating and controlling a browser, reading and clicking on-screen elements, system-level actions (volume, windows, screenshots)
+- Spoken responses in English and Hindi for supported commands
+- Windows Desktop Orb and Chrome browser extension
+
+**Not yet fully verified:**
+- Full Hindi speech recognition robustness across varied, natural phrasing — supported for common commands, still being tested against the same real-speech standard used for English
+- Task templates for specific high-friction services (e.g. Aadhaar appointment booking) as a fully guided, multi-step flow
+- Text-to-speech reliability in all execution paths
 
 ---
 
@@ -146,8 +163,8 @@ AWS_DEFAULT_REGION=eu-north-1
 ```
 
 > [!NOTE]
-> **About the Provided OpenRouter API Keys:**  
-> The OpenRouter keys listed above and in `.env.example` are **disposable, shared public test keys** provided explicitly for evaluators, judges, and testers to run Iris immediately with zero setup. They are not private or secret keys. You can also generate your own free personal key in 30 seconds at [openrouter.ai/keys](https://openrouter.ai/keys).
+> **About the OpenRouter API key:**  
+> The OpenRouter key is **optional** and only powers advanced Q&A and reasoning. Core voice control, Cedar policy checks and screen vision work without it. Generate your own free personal key in 30 seconds at [openrouter.ai/keys](https://openrouter.ai/keys) and paste it into `.env`. Never commit your real `.env` file.
 
 > [!IMPORTANT]
 > **No AWS Access Key or Secret Key Required!**  
